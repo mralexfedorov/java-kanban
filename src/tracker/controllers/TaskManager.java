@@ -1,8 +1,8 @@
-package controllers;
+package tracker.controllers;
 
-import model.Epic;
-import model.Subtask;
-import model.Task;
+import tracker.model.Epic;
+import tracker.model.Subtask;
+import tracker.model.Task;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package model;
+package tracker.model;
 
 public class Subtask extends Task {
     private final Epic epic;

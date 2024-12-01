@@ -1,4 +1,4 @@
-package model;
+package tracker.model;
 
 public enum Status {
     NEW,

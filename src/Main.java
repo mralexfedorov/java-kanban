@@ -1,33 +1,32 @@
-import controllers.InMemoryTaskManager;
-import controllers.Managers;
-import model.Epic;
-import model.Status;
-import model.Subtask;
-import model.Task;
+import tracker.controllers.Managers;
+import tracker.controllers.TaskManager;
+import tracker.model.Epic;
+import tracker.model.Status;
+import tracker.model.Subtask;
+import tracker.model.Task;
 
 public class Main {
 
     public static void main(String[] args) {
         System.out.println("Поехали!");
-        Managers<InMemoryTaskManager> managers = new Managers<>(new InMemoryTaskManager());
-        InMemoryTaskManager inMemoryTaskManager = managers.getDefault();
+        TaskManager inMemoryTaskManager = Managers.getDefault();
 
         // Создайте две задачи, а также эпик с двумя подзадачами и эпик с одной подзадачей
-        Task task1 = new Task("model.Task 1", "Do task 1", inMemoryTaskManager.getTaskId());
+        Task task1 = new Task("tracker.model.Task 1", "Do task 1", inMemoryTaskManager.getTaskId());
         inMemoryTaskManager.createTask(task1);
-        Task task2 = new Task("model.Task 2", "Do task 2", inMemoryTaskManager.getTaskId());
+        Task task2 = new Task("tracker.model.Task 2", "Do task 2", inMemoryTaskManager.getTaskId());
         inMemoryTaskManager.createTask(task2);
-        Epic epic1 = new Epic("model.Epic 1", "Do all subtasks from epic 1", inMemoryTaskManager.getTaskId());
+        Epic epic1 = new Epic("tracker.model.Epic 1", "Do all subtasks from epic 1", inMemoryTaskManager.getTaskId());
         inMemoryTaskManager.createEpic(epic1);
-        Epic epic2 = new Epic("model.Epic 2", "Do all subtasks from epic 2", inMemoryTaskManager.getTaskId());
+        Epic epic2 = new Epic("tracker.model.Epic 2", "Do all subtasks from epic 2", inMemoryTaskManager.getTaskId());
         inMemoryTaskManager.createEpic(epic2);
-        Subtask subtask1 = new Subtask("model.Subtask 1", "Do subtask 1",
+        Subtask subtask1 = new Subtask("tracker.model.Subtask 1", "Do subtask 1",
                 inMemoryTaskManager.getTaskId(), epic1);
         inMemoryTaskManager.createSubtask(subtask1);
-        Subtask subtask2 = new Subtask("model.Subtask 2", "Do subtask 2",
+        Subtask subtask2 = new Subtask("tracker.model.Subtask 2", "Do subtask 2",
                 inMemoryTaskManager.getTaskId(), epic1);
         inMemoryTaskManager.createSubtask(subtask2);
-        Subtask subtask3 = new Subtask("model.Subtask 3", "Do subtask 3",
+        Subtask subtask3 = new Subtask("tracker.model.Subtask 3", "Do subtask 3",
                 inMemoryTaskManager.getTaskId(), epic2);
         inMemoryTaskManager.createSubtask(subtask3);
 

@@ -1,4 +1,4 @@
-package model;
+package tracker.model;
 
 import java.util.Objects;
 
@@ -58,7 +58,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "model.Task{" +
+        return "tracker.model.Task{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", id=" + id +
