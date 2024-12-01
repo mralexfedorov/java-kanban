@@ -1,9 +1,7 @@
 package tracker.model;
 
-import tracker.controllers.InMemoryTaskManager;
 import tracker.controllers.Managers;
 import tracker.controllers.TaskManager;
-import tracker.model.Epic;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
