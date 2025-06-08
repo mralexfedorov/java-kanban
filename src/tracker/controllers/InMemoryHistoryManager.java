@@ -5,7 +5,7 @@ import tracker.model.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class InMemoryHistoryManager implements HistoryManager{
+public class InMemoryHistoryManager implements HistoryManager {
     HashMap<Integer, Node<Task>> history;
     Node<Task> head = null;
     Node<Task> tail = null;
