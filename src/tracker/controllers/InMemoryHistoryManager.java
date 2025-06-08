@@ -3,12 +3,15 @@ package tracker.controllers;
 import tracker.model.Task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class InMemoryHistoryManager implements HistoryManager{
-    ArrayList<Task> history;
+    HashMap<Integer, Node<Task>> history;
+    Node<Task> head = null;
+    Node<Task> tail = null;
 
     public InMemoryHistoryManager() {
-        history = new ArrayList<>();
+        history = new HashMap<>();
     }
 
     @Override
@@ -17,15 +20,63 @@ public class InMemoryHistoryManager implements HistoryManager{
     }
 
     @Override
+    public void remove(int id) {
+        removeNode(history.get(id));
+    }
+
+    @Override
     public ArrayList<Task> getHistory() {
-        return history;
+        return getTasks();
     }
 
     private void updateHistory(Task task) {
-        int MAX_HISTORY_LIST_SIZE = 10;
-        if (history.size() >= MAX_HISTORY_LIST_SIZE) {
-            history.remove(0);
+        linkLast(task);
+    }
+
+    public void removeNode(Node<Task> node) {
+        Node<Task> prevNode = node.getPrev();
+        Node<Task> nextNode = node.getNext();
+        if (prevNode != null) {
+            prevNode.setNext(nextNode);
+        } else {
+            head = nextNode;
         }
-        history.add(task);
+
+        if (nextNode != null) {
+            nextNode.setPrev(prevNode);
+        } else {
+            head = prevNode;
+        }
+        history.remove(node.getData().getId());
+    }
+
+    void linkLast(Task data) {
+        Node<Task> prevNode = tail;
+        Node<Task> newNode = new Node<>(data, null, prevNode);
+        if (prevNode != null) {
+            prevNode.setNext(newNode);
+        }
+
+        if (history.isEmpty()) {
+            head = newNode;
+        } else {
+            Node<Task> foundNode = history.get(data.getId());
+            if (foundNode != null) {
+                removeNode(foundNode);
+            }
+        }
+        tail = newNode;
+        history.put(newNode.getData().getId(), newNode);
+    }
+
+    ArrayList<Task> getTasks() {
+        ArrayList<Task> tasks = new ArrayList<>();
+        Node<Task> tmpNode = head;
+        while (tmpNode != null) {
+            tasks.add(tmpNode.getData());
+            tmpNode = tmpNode.next;
+        }
+        return tasks;
     }
 }
+
