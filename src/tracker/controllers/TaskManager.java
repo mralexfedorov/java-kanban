@@ -45,6 +45,7 @@ public interface TaskManager {
     void updateTask(Task task);
 
     void updateSubtask(Subtask task);
+
     void updateEpicStatus(Epic epic);
 
     void updateEpic(Epic task);
