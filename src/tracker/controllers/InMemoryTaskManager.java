@@ -48,16 +48,23 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление всех задач.
     @Override
     public void deleteAllTasks() {
+        inMemoryHistoryManager.clear();
         tasks.clear();
     }
 
     @Override
     public void deleteAllSubtasks() {
+        for(Subtask subtask: subtasks.values()) {
+            inMemoryHistoryManager.remove(subtask.getId());
+        }
         subtasks.clear();
     }
 
     @Override
     public void deleteAllEpics() {
+        for(Epic epic: epics.values()) {
+            inMemoryHistoryManager.remove(epic.getId());
+        }
         epics.clear();
     }
 
@@ -177,11 +184,13 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление по идентификатору
     @Override
     public void deleteTask(Task task) {
+        inMemoryHistoryManager.remove(task.getId());
         tasks.remove(task.getId());
     }
 
     @Override
     public void deleteSubtask(Subtask task) {
+        inMemoryHistoryManager.remove(task.getId());
         subtasks.remove(task.getId());
         updateEpicStatus(task.getEpic());
     }
@@ -191,8 +200,10 @@ public class InMemoryTaskManager implements TaskManager {
         ArrayList<Subtask> subtasksForDeletion = getEpicsSubtasks(epic.getId());
 
         for (Subtask subtask: subtasksForDeletion) {
+            inMemoryHistoryManager.remove(subtask.getId());
             subtasks.remove(subtask.getId());
         }
+        inMemoryHistoryManager.remove(epic.getId());
         epics.remove(epic.getId());
     }
 
