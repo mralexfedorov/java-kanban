@@ -48,22 +48,24 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление всех задач.
     @Override
     public void deleteAllTasks() {
-        inMemoryHistoryManager.clear();
+        for (Integer taskId: tasks.keySet()) {
+            inMemoryHistoryManager.remove(taskId);
+        }
         tasks.clear();
     }
 
     @Override
     public void deleteAllSubtasks() {
-        for (Subtask subtask: subtasks.values()) {
-            inMemoryHistoryManager.remove(subtask.getId());
+        for (Integer subtaskId: subtasks.keySet()) {
+            inMemoryHistoryManager.remove(subtaskId);
         }
         subtasks.clear();
     }
 
     @Override
     public void deleteAllEpics() {
-        for (Epic epic: epics.values()) {
-            inMemoryHistoryManager.remove(epic.getId());
+        for (Integer epicId: epics.keySet()) {
+            inMemoryHistoryManager.remove(epicId);
         }
         epics.clear();
     }

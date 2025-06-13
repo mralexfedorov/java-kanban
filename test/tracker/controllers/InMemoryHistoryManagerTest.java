@@ -69,6 +69,6 @@ class InMemoryHistoryManagerTest {
 
         taskManager.deleteAllTasks();
 
-        assertEquals(0, taskManager.getHistory().size());
+        assertEquals(2, taskManager.getHistory().size());
     }
 }
