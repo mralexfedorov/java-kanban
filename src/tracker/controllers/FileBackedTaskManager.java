@@ -16,7 +16,7 @@ import java.nio.file.Path;
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static final String HEADER = "id,type,name,status,description,epic";
-    File file;
+    private final File file;
 
     public FileBackedTaskManager(File file) {
         super();
@@ -110,12 +110,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateEpicStatus(Epic epic) {
-        super.updateEpicStatus(epic);
-        save();
-    }
-
-    @Override
     public void deleteTask(Task task) {
         super.deleteTask(task);
         save();
@@ -189,25 +183,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     static void fromString(String value, FileBackedTaskManager fileBackedTasksManager) {
         String[] elements = value.split(",");
-        Epic epic;
+        int id = Integer.parseInt(elements[0]);
         switch (elements[1]) {
             case "TASK":
-                fileBackedTasksManager.tasks.put(Integer.parseInt(elements[0]), new Task(elements[2],
-                        elements[4], Integer.parseInt(elements[0]), Status.valueOf(elements[3])));
+                fileBackedTasksManager.tasks.put(id, new Task(elements[2], elements[4], id,
+                        Status.valueOf(elements[3])));
                 break;
             case "EPIC":
-                epic = new Epic(elements[2], elements[4], Integer.parseInt(elements[0]));
-                fileBackedTasksManager.epics.put(Integer.parseInt(elements[0]), epic);
-                fileBackedTasksManager.updateEpicStatus(epic);
+                fileBackedTasksManager.epics.put(id, new Epic(elements[2], elements[4], id,
+                        Status.valueOf(elements[3])));
                 break;
             case "SUBTASK":
-                epic = fileBackedTasksManager.getEpicById(Integer.parseInt(elements[5]));
-                fileBackedTasksManager.subtasks.put(Integer.parseInt(elements[0]),
-                        new Subtask(elements[2], elements[4], Integer.parseInt(elements[0]),
-                                Status.valueOf(elements[3]), epic));
-                fileBackedTasksManager.updateEpicStatus(epic);
+                fileBackedTasksManager.subtasks.put(id, new Subtask(elements[2], elements[4], id,
+                        Status.valueOf(elements[3]),
+                        fileBackedTasksManager.getEpicById(Integer.parseInt(elements[5]))));
                 break;
         }
-        fileBackedTasksManager.taskId += 1;
+        if (id > fileBackedTasksManager.taskId) {
+            fileBackedTasksManager.taskId = id;
+        }
     }
 }
