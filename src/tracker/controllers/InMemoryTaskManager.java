@@ -7,8 +7,9 @@ import tracker.model.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-public class InMemoryTaskManager implements TaskManager{
+public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks;
     private final HashMap<Integer, Subtask> subtasks;
     private final HashMap<Integer, Epic> epics;
@@ -33,10 +34,12 @@ public class InMemoryTaskManager implements TaskManager{
     public ArrayList<Task> getTasks() {
         return new ArrayList<>(tasks.values());
     }
+
     @Override
     public ArrayList<Subtask> getSubtasks() {
         return new ArrayList<>(subtasks.values());
     }
+
     @Override
     public ArrayList<Epic> getEpics() {
         return new ArrayList<>(epics.values());
@@ -45,16 +48,25 @@ public class InMemoryTaskManager implements TaskManager{
     // Удаление всех задач.
     @Override
     public void deleteAllTasks() {
+        for (Integer taskId: tasks.keySet()) {
+            inMemoryHistoryManager.remove(taskId);
+        }
         tasks.clear();
     }
 
     @Override
     public void deleteAllSubtasks() {
+        for (Integer subtaskId: subtasks.keySet()) {
+            inMemoryHistoryManager.remove(subtaskId);
+        }
         subtasks.clear();
     }
 
     @Override
     public void deleteAllEpics() {
+        for (Integer epicId: epics.keySet()) {
+            inMemoryHistoryManager.remove(epicId);
+        }
         epics.clear();
     }
 
@@ -174,11 +186,13 @@ public class InMemoryTaskManager implements TaskManager{
     // Удаление по идентификатору
     @Override
     public void deleteTask(Task task) {
+        inMemoryHistoryManager.remove(task.getId());
         tasks.remove(task.getId());
     }
 
     @Override
     public void deleteSubtask(Subtask task) {
+        inMemoryHistoryManager.remove(task.getId());
         subtasks.remove(task.getId());
         updateEpicStatus(task.getEpic());
     }
@@ -188,13 +202,15 @@ public class InMemoryTaskManager implements TaskManager{
         ArrayList<Subtask> subtasksForDeletion = getEpicsSubtasks(epic.getId());
 
         for (Subtask subtask: subtasksForDeletion) {
+            inMemoryHistoryManager.remove(subtask.getId());
             subtasks.remove(subtask.getId());
         }
+        inMemoryHistoryManager.remove(epic.getId());
         epics.remove(epic.getId());
     }
 
     @Override
-    public ArrayList<Task> getHistory() {
+    public List<Task> getHistory() {
         return inMemoryHistoryManager.getHistory();
     }
 }

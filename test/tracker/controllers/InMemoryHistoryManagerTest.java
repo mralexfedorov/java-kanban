@@ -49,8 +49,8 @@ class InMemoryHistoryManagerTest {
         
         taskManager.getTaskById(task1.getId());
 
-        assertEquals("Task 1", taskManager.getHistory().get(0).getName());
-        assertEquals("Task 1 (upd)", taskManager.getHistory().get(7).getName());
+        assertEquals("Task 2", taskManager.getHistory().get(0).getName());
+        assertEquals("Task 1 (upd)", taskManager.getHistory().get(6).getName());
 
         taskManager.getTaskById(task2.getId());
         taskManager.getEpicById(epic1.getId());
@@ -59,6 +59,16 @@ class InMemoryHistoryManagerTest {
         taskManager.getSubtaskById(subtask2.getId());
         taskManager.getSubtaskById(subtask3.getId());
 
-        assertEquals(10, taskManager.getHistory().size());
+        assertEquals(7, taskManager.getHistory().size());
+
+        taskManager.deleteTask(task1);
+        taskManager.deleteSubtask(subtask1);
+        taskManager.deleteEpic(epic1);
+
+        assertEquals(3, taskManager.getHistory().size());
+
+        taskManager.deleteAllTasks();
+
+        assertEquals(2, taskManager.getHistory().size());
     }
 }
