@@ -3,10 +3,10 @@ package tracker.model;
 import java.util.Objects;
 
 public class Task {
-    private String name;
-    private String description;
-    private final int id;
-    private Status status;
+    protected String name;
+    protected String description;
+    protected final int id;
+    protected Status status;
 
     public Task(String name, String description, int id) {
         this.name = name;
@@ -65,6 +65,6 @@ public class Task {
 
     @Override
     public String toString() {
-        return this.getId() + ",TASK," + this.getName() + "," + this.getStatus() + "," + this.getDescription()  + ",";
+        return id + "," + TaskType.TASK + "," + name + "," + status + "," + description + ",";
     }
 }

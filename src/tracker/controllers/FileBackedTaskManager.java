@@ -16,7 +16,12 @@ import java.nio.file.Path;
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static final String HEADER = "id,type,name,status,description,epic";
-    private File file;
+    File file;
+
+    public FileBackedTaskManager(File file) {
+        super();
+        this.file = file;
+    }
 
     public static void main(String[] args) {
         // Заведите несколько разных задач, эпиков и подзадач.
@@ -50,28 +55,22 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             System.out.println(fileBackedTasksManager.getHistory());
 
             // Создайте новый FileBackedTaskManager-менеджер из этого же файла.
-            FileBackedTaskManager fileBackedTasksManagerRestored = new FileBackedTaskManager(tempFile);
+            FileBackedTaskManager fileBackedTasksManagerRestored = FileBackedTaskManager.loadFromFile(tempFile);
 
             // Проверьте, что все задачи, эпики, подзадачи, которые были в старом менеджере, есть в новом.
             fileBackedTasksManagerRestored.getTaskById(1);
             fileBackedTasksManagerRestored.getTaskById(2);
-            fileBackedTasksManagerRestored.getTaskById(3);
-            fileBackedTasksManagerRestored.getTaskById(4);
-            fileBackedTasksManagerRestored.getTaskById(5);
-            fileBackedTasksManagerRestored.getTaskById(6);
-            fileBackedTasksManagerRestored.getTaskById(7);
+            fileBackedTasksManagerRestored.getEpicById(3);
+            fileBackedTasksManagerRestored.getEpicById(4);
+            fileBackedTasksManagerRestored.getSubtaskById(5);
+            fileBackedTasksManagerRestored.getSubtaskById(6);
+            fileBackedTasksManagerRestored.getSubtaskById(7);
 
             System.out.println(fileBackedTasksManagerRestored.getHistory());
 
         } catch (IOException e) {
             System.out.println("Ошибка создания файла");
         }
-    }
-
-    public FileBackedTaskManager(File file) {
-        super();
-        this.file = file;
-        loadFromFile(this);
     }
 
     @Override
@@ -169,9 +168,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
     }
 
-    static void loadFromFile(FileBackedTaskManager fileBackedTasksManager) {
+    public static FileBackedTaskManager loadFromFile(File file) {
+        FileBackedTaskManager fileBackedTasksManager = new FileBackedTaskManager(file);
         try {
-            Path path = fileBackedTasksManager.file.toPath();
+            Path path = file.toPath();
             if (Files.exists(path)) {
                 String[] lines = Files.readString(path).replace(HEADER + "\n","").split("\n");
                 for (String line : lines) {
@@ -183,17 +183,31 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } catch (IOException ioException) {
             throw new ManagerSaveException("Ошибка при чтении файла.");
         }
+
+        return fileBackedTasksManager;
     }
 
     static void fromString(String value, FileBackedTaskManager fileBackedTasksManager) {
         String[] elements = value.split(",");
+        Epic epic;
         switch (elements[1]) {
-            case "TASK" -> fileBackedTasksManager.createTask(new Task(elements[2], elements[4],
-                        Integer.parseInt(elements[0]), Status.valueOf(elements[3])));
-            case "EPIC" -> fileBackedTasksManager.createEpic(new Epic(elements[2], elements[4],
-                    Integer.parseInt(elements[0])));
-            case "SUBTASK" -> fileBackedTasksManager.createSubtask(new Subtask(elements[2], elements[4],
-                    Integer.parseInt(elements[0]), fileBackedTasksManager.getEpicById(Integer.parseInt(elements[5]))));
+            case "TASK":
+                fileBackedTasksManager.tasks.put(Integer.parseInt(elements[0]), new Task(elements[2],
+                        elements[4], Integer.parseInt(elements[0]), Status.valueOf(elements[3])));
+                break;
+            case "EPIC":
+                epic = new Epic(elements[2], elements[4], Integer.parseInt(elements[0]));
+                fileBackedTasksManager.epics.put(Integer.parseInt(elements[0]), epic);
+                fileBackedTasksManager.updateEpicStatus(epic);
+                break;
+            case "SUBTASK":
+                epic = fileBackedTasksManager.getEpicById(Integer.parseInt(elements[5]));
+                fileBackedTasksManager.subtasks.put(Integer.parseInt(elements[0]),
+                        new Subtask(elements[2], elements[4], Integer.parseInt(elements[0]),
+                                Status.valueOf(elements[3]), epic));
+                fileBackedTasksManager.updateEpicStatus(epic);
+                break;
         }
+        fileBackedTasksManager.taskId += 1;
     }
 }
