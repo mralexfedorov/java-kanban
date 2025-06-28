@@ -15,6 +15,13 @@ public class Task {
         this.status = Status.NEW;
     }
 
+    public Task(String name, String description, int id, Status status) {
+        this.name = name;
+        this.description = description;
+        this.id = id;
+        this.status = status;
+    }
+
     public String getName() {
         return name;
     }
@@ -58,11 +65,6 @@ public class Task {
 
     @Override
     public String toString() {
-        return "tracker.model.Task{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", id=" + id +
-                ", status=" + status +
-                '}';
+        return this.getId() + ",TASK," + this.getName() + "," + this.getStatus() + "," + this.getDescription()  + ",";
     }
 }
