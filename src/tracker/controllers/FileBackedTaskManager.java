@@ -16,7 +16,7 @@ import java.nio.file.Path;
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static final String HEADER = "id,type,name,status,description,epic";
-    final private File file;
+    private File file;
 
     public static void main(String[] args) {
         // Заведите несколько разных задач, эпиков и подзадач.
