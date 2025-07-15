@@ -267,10 +267,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private <T extends Task> boolean intersectionChecked(T task1, T task2) {
-        LocalDateTime endTime1 = task1.getStartTime().plusSeconds(task1.getDuration());
-        LocalDateTime endTime2 = task2.getStartTime().plusSeconds(task2.getDuration());
-        return task1.getStartTime().isBefore(task2.getStartTime()) && endTime1.isAfter(task2.getStartTime())
-                || task1.getStartTime().isBefore(endTime2) && endTime1.isAfter(endTime2);
+        LocalDateTime endTime1 = task1.getStartTime().plusMinutes(task1.getDuration()).minusSeconds(1);
+        LocalDateTime endTime2 = task2.getStartTime().plusMinutes(task2.getDuration()).minusSeconds(1);
+        return (task1.getStartTime().isBefore(task2.getStartTime()) || task1.getStartTime().isEqual(task2.getStartTime()))
+                && (endTime1.isAfter(task2.getStartTime()) || endTime1.isEqual(task2.getStartTime()))
+                || (task1.getStartTime().isBefore(endTime2) || task1.getStartTime().isEqual(endTime2))
+                && (endTime1.isAfter(endTime2) || endTime1.isEqual(endTime2));
     }
 
     private <T extends Task> boolean noIntersectionWithTasks(T task) {
