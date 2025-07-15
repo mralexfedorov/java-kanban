@@ -202,6 +202,7 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStatus(Status.IN_PROGRESS);
         }
     }
+
     @Override
     public void updateEpicDuration(Epic epic) {
         ArrayList<Subtask> epicSubtasks = getEpicsSubtasks(epic.getId());
@@ -265,7 +266,7 @@ public class InMemoryTaskManager implements TaskManager {
         return sortedTasks;
     }
 
-    private <T extends Task> boolean intersectionChecked (T task1, T task2) {
+    private <T extends Task> boolean intersectionChecked(T task1, T task2) {
         LocalDateTime endTime1 = task1.getStartTime().plusSeconds(task1.getDuration());
         LocalDateTime endTime2 = task2.getStartTime().plusSeconds(task2.getDuration());
         return task1.getStartTime().isBefore(task2.getStartTime()) && endTime1.isAfter(task2.getStartTime())
