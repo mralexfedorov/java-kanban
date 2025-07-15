@@ -5,29 +5,37 @@ import tracker.model.Status;
 import tracker.model.Subtask;
 import tracker.model.Task;
 
+import java.time.LocalDateTime;
+
 public class Main {
 
     public static void main(String[] args) {
+        final long MINUTES_IN_DAY = 60 * 24;
+        final LocalDateTime TASK_START_TIME = LocalDateTime.now();
         System.out.println("Поехали!");
         TaskManager inMemoryTaskManager = Managers.getDefault();
 
         // Создайте две задачи, а также эпик с двумя подзадачами и эпик с одной подзадачей
-        Task task1 = new Task("tracker.model.Task 1", "Do task 1", inMemoryTaskManager.getTaskId());
+        Task task1 = new Task("tracker.model.Task 1", "Do task 1", inMemoryTaskManager.getTaskId(),
+                MINUTES_IN_DAY, TASK_START_TIME.minusDays(4));
         inMemoryTaskManager.createTask(task1);
-        Task task2 = new Task("tracker.model.Task 2", "Do task 2", inMemoryTaskManager.getTaskId());
+        Task task2 = new Task("tracker.model.Task 2", "Do task 2", inMemoryTaskManager.getTaskId(),
+                MINUTES_IN_DAY, TASK_START_TIME.minusDays(3));
         inMemoryTaskManager.createTask(task2);
-        Epic epic1 = new Epic("tracker.model.Epic 1", "Do all subtasks from epic 1", inMemoryTaskManager.getTaskId());
+        Epic epic1 = new Epic("tracker.model.Epic 1", "Do all subtasks from epic 1",
+                inMemoryTaskManager.getTaskId());
         inMemoryTaskManager.createEpic(epic1);
-        Epic epic2 = new Epic("tracker.model.Epic 2", "Do all subtasks from epic 2", inMemoryTaskManager.getTaskId());
+        Epic epic2 = new Epic("tracker.model.Epic 2", "Do all subtasks from epic 2",
+                inMemoryTaskManager.getTaskId());
         inMemoryTaskManager.createEpic(epic2);
-        Subtask subtask1 = new Subtask("tracker.model.Subtask 1", "Do subtask 1",
-                inMemoryTaskManager.getTaskId(), epic1);
+        Subtask subtask1 = new Subtask("tracker.model.Subtask 1", "Do subtask 1", inMemoryTaskManager.getTaskId(),
+                epic1, MINUTES_IN_DAY, TASK_START_TIME.minusDays(2));
         inMemoryTaskManager.createSubtask(subtask1);
-        Subtask subtask2 = new Subtask("tracker.model.Subtask 2", "Do subtask 2",
-                inMemoryTaskManager.getTaskId(), epic1);
+        Subtask subtask2 = new Subtask("tracker.model.Subtask 2", "Do subtask 2", inMemoryTaskManager.getTaskId(),
+                epic1, MINUTES_IN_DAY, TASK_START_TIME.minusDays(1));
         inMemoryTaskManager.createSubtask(subtask2);
-        Subtask subtask3 = new Subtask("tracker.model.Subtask 3", "Do subtask 3",
-                inMemoryTaskManager.getTaskId(), epic2);
+        Subtask subtask3 = new Subtask("tracker.model.Subtask 3", "Do subtask 3", inMemoryTaskManager.getTaskId(),
+                epic2, MINUTES_IN_DAY, TASK_START_TIME);
         inMemoryTaskManager.createSubtask(subtask3);
 
         // Распечатайте списки эпиков, задач и подзадач через System.out.println(..)

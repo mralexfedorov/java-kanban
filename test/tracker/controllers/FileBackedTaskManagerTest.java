@@ -9,11 +9,14 @@ import tracker.model.Task;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileBackedTaskManagerTest extends InMemoryTaskManagerTest {
     File file;
+    final long MINUTES_IN_DAY = 60 * 24;
+    final LocalDateTime TASK_START_TIME = LocalDateTime.now();
 
     @Override
     @BeforeEach
@@ -43,13 +46,18 @@ class FileBackedTaskManagerTest extends InMemoryTaskManagerTest {
 
     @Test
     void checkImportFromFile() {
-        Task task1 = new Task("task 1", "task 1", 1, Status.NEW);
-        Task task2 = new Task("task 2", "task 2", 2, Status.NEW);
+        Task task1 = new Task("task 1", "task 1", 1, Status.NEW, MINUTES_IN_DAY,
+                TASK_START_TIME.minusDays(4));
+        Task task2 = new Task("task 2", "task 2", 2, Status.NEW, MINUTES_IN_DAY,
+                TASK_START_TIME.minusDays(3));
         Epic epic1 = new Epic("epic 1", "epic 1", 3);
         Epic epic2 = new Epic("epic 2", "epic 2", 4);
-        Subtask subtask1 = new Subtask("subtask 1", "subtask 1", 5, epic1);
-        Subtask subtask2 = new Subtask("subtask 2", "subtask 2", 6, epic1);
-        Subtask subtask3 = new Subtask("subtask 3", "subtask 3", 7, epic2);
+        Subtask subtask1 = new Subtask("subtask 1", "subtask 1", 5, epic1, MINUTES_IN_DAY,
+                TASK_START_TIME.minusDays(2));
+        Subtask subtask2 = new Subtask("subtask 2", "subtask 2", 6, epic1, MINUTES_IN_DAY,
+                TASK_START_TIME.minusDays(1));
+        Subtask subtask3 = new Subtask("subtask 3", "subtask 3", 7, epic2, MINUTES_IN_DAY,
+                TASK_START_TIME);
 
         taskManager.createTask(task1);
         taskManager.createTask(task2);

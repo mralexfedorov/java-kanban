@@ -48,6 +48,8 @@ public interface TaskManager {
 
     void updateEpicStatus(Epic epic);
 
+    void updateEpicDuration(Epic epic);
+
     void updateEpic(Epic task);
 
     // Удаление по идентификатору
