@@ -6,6 +6,8 @@ import tracker.model.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.TreeSet;
 
 public interface TaskManager {
     // Получение списка всех задач.
@@ -25,9 +27,9 @@ public interface TaskManager {
     void deleteAllEpics();
 
     // Получение по идентификатору.
-    Task getTaskById(int id);
+    Optional<Task> getTaskById(int id);
 
-    Subtask getSubtaskById(int id);
+    Optional<Subtask> getSubtaskById(int id);
 
     Epic getEpicById(int id);
 
@@ -48,8 +50,6 @@ public interface TaskManager {
 
     void updateEpicStatus(Epic epic);
 
-    void updateEpicDuration(Epic epic);
-
     void updateEpic(Epic task);
 
     // Удаление по идентификатору
@@ -60,4 +60,6 @@ public interface TaskManager {
     void deleteEpic(Epic epic);
 
     List<Task> getHistory();
+
+    TreeSet<Task> getPrioritizedTasks();
 }

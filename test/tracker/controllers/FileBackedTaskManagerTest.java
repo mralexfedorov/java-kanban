@@ -70,19 +70,19 @@ class FileBackedTaskManagerTest extends InMemoryTaskManagerTest {
         TaskManager taskManager1 = FileBackedTaskManager.loadFromFile(file);
         TaskManager taskManager2 = FileBackedTaskManager.loadFromFile(file);
 
-        assertTrue(tasksAreEquals(taskManager1.getTaskById(1), taskManager2.getTaskById(1)),
+        assertTrue(tasksAreEquals(taskManager1.getTaskById(1).get(), taskManager2.getTaskById(1).get()),
                 "Исходная задача не соответствует загруженной");
-        assertTrue(tasksAreEquals(taskManager1.getTaskById(2), taskManager2.getTaskById(2)),
+        assertTrue(tasksAreEquals(taskManager1.getTaskById(2).get(), taskManager2.getTaskById(2).get()),
                 "Исходная задача не соответствует загруженной");
         assertTrue(tasksAreEquals(taskManager1.getEpicById(3), taskManager2.getEpicById(3)),
                 "Исходная задача не соответствует загруженной");
         assertTrue(tasksAreEquals(taskManager1.getEpicById(4), taskManager2.getEpicById(4)),
                 "Исходная задача не соответствует загруженной");
-        assertTrue(tasksAreEquals(taskManager1.getSubtaskById(5), taskManager2.getSubtaskById(5)),
+        assertTrue(tasksAreEquals(taskManager1.getSubtaskById(5).get(), taskManager2.getSubtaskById(5).get()),
                 "Исходная задача не соответствует загруженной");
-        assertTrue(tasksAreEquals(taskManager1.getSubtaskById(6), taskManager2.getSubtaskById(6)),
+        assertTrue(tasksAreEquals(taskManager1.getSubtaskById(6).get(), taskManager2.getSubtaskById(6).get()),
                 "Исходная задача не соответствует загруженной");
-        assertTrue(tasksAreEquals(taskManager1.getSubtaskById(7), taskManager2.getSubtaskById(7)),
+        assertTrue(tasksAreEquals(taskManager1.getSubtaskById(7).get(), taskManager2.getSubtaskById(7).get()),
                 "Исходная задача не соответствует загруженной");
     }
 

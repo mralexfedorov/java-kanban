@@ -13,6 +13,10 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.TreeSet;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
@@ -57,9 +61,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
             fileBackedTasksManager.getTaskById(1);
             fileBackedTasksManager.getTaskById(2);
-            fileBackedTasksManager.getTaskById(7);
-            fileBackedTasksManager.getTaskById(3);
-            fileBackedTasksManager.getTaskById(5);
+            fileBackedTasksManager.getSubtaskById(7);
+            fileBackedTasksManager.getEpicById(3);
+            fileBackedTasksManager.getSubtaskById(5);
 
             System.out.println(fileBackedTasksManager.getHistory());
 
@@ -166,6 +170,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 for (Task task: this.getSubtasks()) {
                     fileWriter.write("\n" + task.toString());
                 }
+            fileWriter.write(prioritizedTaskstoString(this));
             } catch (IOException ioException) {
                 throw new ManagerSaveException("Ошибка при создании файла.");
             }
@@ -182,12 +187,37 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         fromString(line, fileBackedTasksManager);
                     }
                 }
+                List<String> sortedTasks = sortedTasksFromString(lines[lines.length - 1]);
+                for (String element: sortedTasks) {
+                    Optional<Task> task = fileBackedTasksManager.getTaskById(Integer.parseInt(element));
+                    if (task.isPresent()) {
+                        fileBackedTasksManager.getPrioritizedTasks().add(task.get());
+                    } else {
+                        Optional<Subtask> subtask = fileBackedTasksManager.getSubtaskById(Integer.parseInt(element));
+                        subtask.ifPresent(value -> fileBackedTasksManager.getPrioritizedTasks().add(value));
+                    }
+                }
             }
         } catch (IOException ioException) {
             throw new ManagerSaveException("Ошибка при чтении файла.");
         }
 
         return fileBackedTasksManager;
+    }
+
+    static String prioritizedTaskstoString(FileBackedTaskManager fileBackedTaskManager) {
+        StringBuilder result = new StringBuilder();
+
+        TreeSet<Task> prioritizedTasks = fileBackedTaskManager.getPrioritizedTasks();
+        for (Task task: prioritizedTasks) {
+                if (result.length() == 0) {
+                    result.append("\n\n").append(task.getId());
+                } else {
+                    result.append(",").append(task.getId());
+                }
+            }
+
+        return result.toString();
     }
 
     static void fromString(String value, FileBackedTaskManager fileBackedTasksManager) {
@@ -206,5 +236,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         if (id > fileBackedTasksManager.taskId) {
             fileBackedTasksManager.taskId = id;
         }
+    }
+
+    static List<String> sortedTasksFromString(String value) {
+        return Arrays.asList(value.split(","));
     }
 }
