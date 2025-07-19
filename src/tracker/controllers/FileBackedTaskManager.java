@@ -189,12 +189,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
                 List<String> sortedTasks = sortedTasksFromString(lines[lines.length - 1]);
                 for (String element: sortedTasks) {
-                    Optional<Task> task = fileBackedTasksManager.getTaskById(Integer.parseInt(element));
-                    if (task.isPresent()) {
-                        fileBackedTasksManager.getPrioritizedTasks().add(task.get());
-                    } else {
-                        Optional<Subtask> subtask = fileBackedTasksManager.getSubtaskById(Integer.parseInt(element));
-                        subtask.ifPresent(value -> fileBackedTasksManager.getPrioritizedTasks().add(value));
+                    if (!element.equals("")) {
+                        Optional<Task> task = fileBackedTasksManager.getTaskById(Integer.parseInt(element));
+                        if (task.isPresent()) {
+                            fileBackedTasksManager.getPrioritizedTasks().add(task.get());
+                        } else {
+                            Optional<Subtask> subtask = fileBackedTasksManager.getSubtaskById(Integer.parseInt(element));
+                            subtask.ifPresent(value -> fileBackedTasksManager.getPrioritizedTasks().add(value));
+                        }
                     }
                 }
             }

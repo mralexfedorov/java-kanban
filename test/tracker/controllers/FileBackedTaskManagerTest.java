@@ -74,9 +74,9 @@ class FileBackedTaskManagerTest extends InMemoryTaskManagerTest {
                 "Исходная задача не соответствует загруженной");
         assertTrue(tasksAreEquals(taskManager1.getTaskById(2).get(), taskManager2.getTaskById(2).get()),
                 "Исходная задача не соответствует загруженной");
-        assertTrue(tasksAreEquals(taskManager1.getEpicById(3), taskManager2.getEpicById(3)),
+        assertTrue(epicsAreEquals(taskManager1.getEpicById(3), taskManager2.getEpicById(3)),
                 "Исходная задача не соответствует загруженной");
-        assertTrue(tasksAreEquals(taskManager1.getEpicById(4), taskManager2.getEpicById(4)),
+        assertTrue(epicsAreEquals(taskManager1.getEpicById(4), taskManager2.getEpicById(4)),
                 "Исходная задача не соответствует загруженной");
         assertTrue(tasksAreEquals(taskManager1.getSubtaskById(5).get(), taskManager2.getSubtaskById(5).get()),
                 "Исходная задача не соответствует загруженной");
@@ -84,12 +84,26 @@ class FileBackedTaskManagerTest extends InMemoryTaskManagerTest {
                 "Исходная задача не соответствует загруженной");
         assertTrue(tasksAreEquals(taskManager1.getSubtaskById(7).get(), taskManager2.getSubtaskById(7).get()),
                 "Исходная задача не соответствует загруженной");
+
+
     }
 
     boolean tasksAreEquals(Task task1, Task task2) {
         return task1.getId() == task2.getId()
                 && task1.getName().equals(task2.getName())
                 && task1.getDescription().equals(task2.getDescription())
-                && task1.getStatus().equals(task2.getStatus());
+                && task1.getStatus().equals(task2.getStatus())
+                && task1.getStartTime().equals(task2.getStartTime())
+                && task1.getDuration() == task2.getDuration();
+    }
+
+    boolean epicsAreEquals(Epic epic1, Epic epic2) {
+        return epic1.getId() == epic2.getId()
+                && epic1.getName().equals(epic2.getName())
+                && epic1.getDescription().equals(epic2.getDescription())
+                && epic1.getStatus().equals(epic2.getStatus())
+                && epic1.getStartTime().equals(epic2.getStartTime())
+                && epic1.getDuration() == epic2.getDuration()
+                && epic1.getEndTime().equals(epic2.getEndTime());
     }
 }
