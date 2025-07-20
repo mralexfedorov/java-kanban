@@ -76,6 +76,8 @@ public class InMemoryTaskManager implements TaskManager {
         for (Subtask subtask: subtasks.values()) {
             inMemoryHistoryManager.remove(subtask.getId());
             sortedTasks.remove(subtask);
+            updateEpicStatus(subtask.getEpic());
+            updateEpicEndTimeAndDuration(subtask.getEpic());
         }
         subtasks.clear();
     }
