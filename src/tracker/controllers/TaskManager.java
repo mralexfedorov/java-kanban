@@ -6,7 +6,6 @@ import tracker.model.Task;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.TreeSet;
 
 public interface TaskManager {
@@ -27,9 +26,9 @@ public interface TaskManager {
     void deleteAllEpics();
 
     // Получение по идентификатору.
-    Optional<Task> getTaskById(int id);
+    Task getTaskById(int id);
 
-    Optional<Subtask> getSubtaskById(int id);
+    Subtask getSubtaskById(int id);
 
     Epic getEpicById(int id);
 

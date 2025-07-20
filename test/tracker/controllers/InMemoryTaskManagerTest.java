@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryTaskManagerTest {
-    TaskManager taskManager;
+class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager>{
     final long MINUTES_IN_DAY = 60 * 24;
     final LocalDateTime TASK_START_TIME = LocalDateTime.now();
 
@@ -43,13 +42,13 @@ class InMemoryTaskManagerTest {
                 MINUTES_IN_DAY, TASK_START_TIME);
         taskManager.createSubtask(subtask3);
 
-        assertEquals(1, taskManager.getTaskById(task1.getId()).get().getId(), "Неверный Id");
-        assertEquals(2, taskManager.getTaskById(task2.getId()).get().getId(), "Неверный Id");
+        assertEquals(1, taskManager.getTaskById(task1.getId()).getId(), "Неверный Id");
+        assertEquals(2, taskManager.getTaskById(task2.getId()).getId(), "Неверный Id");
         assertEquals(3, taskManager.getEpicById(epic1.getId()).getId(), "Неверный Id");
         assertEquals(4, taskManager.getEpicById(epic2.getId()).getId(), "Неверный Id");
-        assertEquals(5, taskManager.getSubtaskById(subtask1.getId()).get().getId(), "Неверный Id");
-        assertEquals(6, taskManager.getSubtaskById(subtask2.getId()).get().getId(), "Неверный Id");
-        assertEquals(7, taskManager.getSubtaskById(subtask3.getId()).get().getId(), "Неверный Id");
+        assertEquals(5, taskManager.getSubtaskById(subtask1.getId()).getId(), "Неверный Id");
+        assertEquals(6, taskManager.getSubtaskById(subtask2.getId()).getId(), "Неверный Id");
+        assertEquals(7, taskManager.getSubtaskById(subtask3.getId()).getId(), "Неверный Id");
     }
 
     @Test
@@ -101,10 +100,10 @@ class InMemoryTaskManagerTest {
         Task task2 = new Task("Task 2", "Do task 2", taskManager.getTaskId(), MINUTES_IN_DAY,
                 TASK_START_TIME);
         taskManager.createTask(task2);
-        assertEquals(1, taskManager.getTaskById(task1.getId()).get().getId(), "Неверный Id");
+        assertEquals(1, taskManager.getTaskById(task1.getId()).getId(), "Неверный Id");
         assertEquals(1, taskManager.getTasks().size(), "Неверное количество задач");
         task2.setStartTime(TASK_START_TIME.plusDays(1));
         taskManager.createTask(task2);
-        assertEquals(2, taskManager.getTaskById(task2.getId()).get().getId(), "Неверный Id");
+        assertEquals(2, taskManager.getTaskById(task2.getId()).getId(), "Неверный Id");
     }
 }

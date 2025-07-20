@@ -13,10 +13,6 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.TreeSet;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
@@ -170,7 +166,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 for (Task task: this.getSubtasks()) {
                     fileWriter.write("\n" + task.toString());
                 }
-            fileWriter.write(prioritizedTaskstoString(this));
             } catch (IOException ioException) {
                 throw new ManagerSaveException("Ошибка при создании файла.");
             }
@@ -187,18 +182,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         fromString(line, fileBackedTasksManager);
                     }
                 }
-                List<String> sortedTasks = sortedTasksFromString(lines[lines.length - 1]);
-                for (String element: sortedTasks) {
-                    if (!element.equals("")) {
-                        Optional<Task> task = fileBackedTasksManager.getTaskById(Integer.parseInt(element));
-                        if (task.isPresent()) {
-                            fileBackedTasksManager.getPrioritizedTasks().add(task.get());
-                        } else {
-                            Optional<Subtask> subtask = fileBackedTasksManager.getSubtaskById(Integer.parseInt(element));
-                            subtask.ifPresent(value -> fileBackedTasksManager.getPrioritizedTasks().add(value));
-                        }
-                    }
-                }
             }
         } catch (IOException ioException) {
             throw new ManagerSaveException("Ошибка при чтении файла.");
@@ -207,40 +190,31 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return fileBackedTasksManager;
     }
 
-    static String prioritizedTaskstoString(FileBackedTaskManager fileBackedTaskManager) {
-        StringBuilder result = new StringBuilder();
-
-        TreeSet<Task> prioritizedTasks = fileBackedTaskManager.getPrioritizedTasks();
-        for (Task task: prioritizedTasks) {
-                if (result.length() == 0) {
-                    result.append("\n\n").append(task.getId());
-                } else {
-                    result.append(",").append(task.getId());
-                }
-            }
-
-        return result.toString();
-    }
-
     static void fromString(String value, FileBackedTaskManager fileBackedTasksManager) {
         String[] elements = value.split(",");
         int id = Integer.parseInt(elements[0]);
         switch (elements[1]) {
-            case "TASK" -> fileBackedTasksManager.tasks.put(id, new Task(elements[2], elements[4], id,
-                    Status.valueOf(elements[3]), Long.parseLong(elements[5]), LocalDateTime.parse(elements[6])));
-            case "EPIC" -> fileBackedTasksManager.epics.put(id, new Epic(elements[2], elements[4], id,
-                    Status.valueOf(elements[3]), Long.parseLong(elements[5]), LocalDateTime.parse(elements[6]),
-                    LocalDateTime.parse(elements[7])));
-            case "SUBTASK" -> fileBackedTasksManager.subtasks.put(id, new Subtask(elements[2], elements[4], id,
-                    Status.valueOf(elements[3]), fileBackedTasksManager.getEpicById(Integer.parseInt(elements[8])),
-                    Long.parseLong(elements[5]), LocalDateTime.parse(elements[6])));
+            case "TASK" -> {
+                Task task = new Task(elements[2], elements[4], id,
+                        Status.valueOf(elements[3]), Long.parseLong(elements[5]), LocalDateTime.parse(elements[6]));
+                fileBackedTasksManager.tasks.put(id, task);
+                fileBackedTasksManager.sortedTasks.add(task);
+            }
+            case "EPIC" -> {
+                Epic epic = new Epic(elements[2], elements[4], id, Status.valueOf(elements[3]),
+                        Long.parseLong(elements[5]), LocalDateTime.parse(elements[6]), LocalDateTime.parse(elements[7]));
+                fileBackedTasksManager.epics.put(id, epic);
+            }
+            case "SUBTASK" -> {
+                Subtask subtask = new Subtask(elements[2], elements[4], id, Status.valueOf(elements[3]),
+                        fileBackedTasksManager.epics.get(Integer.parseInt(elements[8])), Long.parseLong(elements[5]),
+                        LocalDateTime.parse(elements[6]));
+                fileBackedTasksManager.subtasks.put(id, subtask);
+                fileBackedTasksManager.sortedTasks.add(subtask);
+            }
         }
         if (id > fileBackedTasksManager.taskId) {
             fileBackedTasksManager.taskId = id;
         }
-    }
-
-    static List<String> sortedTasksFromString(String value) {
-        return Arrays.asList(value.split(","));
     }
 }

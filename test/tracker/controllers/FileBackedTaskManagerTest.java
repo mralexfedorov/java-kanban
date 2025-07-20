@@ -13,12 +13,11 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTaskManagerTest extends InMemoryTaskManagerTest {
+class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     File file;
     final long MINUTES_IN_DAY = 60 * 24;
     final LocalDateTime TASK_START_TIME = LocalDateTime.now();
 
-    @Override
     @BeforeEach
     void initializeTask() {
         try {
@@ -70,19 +69,19 @@ class FileBackedTaskManagerTest extends InMemoryTaskManagerTest {
         TaskManager taskManager1 = FileBackedTaskManager.loadFromFile(file);
         TaskManager taskManager2 = FileBackedTaskManager.loadFromFile(file);
 
-        assertTrue(tasksAreEquals(taskManager1.getTaskById(1).get(), taskManager2.getTaskById(1).get()),
+        assertTrue(tasksAreEquals(taskManager1.getTaskById(1), taskManager2.getTaskById(1)),
                 "Исходная задача не соответствует загруженной");
-        assertTrue(tasksAreEquals(taskManager1.getTaskById(2).get(), taskManager2.getTaskById(2).get()),
+        assertTrue(tasksAreEquals(taskManager1.getTaskById(2), taskManager2.getTaskById(2)),
                 "Исходная задача не соответствует загруженной");
         assertTrue(epicsAreEquals(taskManager1.getEpicById(3), taskManager2.getEpicById(3)),
                 "Исходная задача не соответствует загруженной");
         assertTrue(epicsAreEquals(taskManager1.getEpicById(4), taskManager2.getEpicById(4)),
                 "Исходная задача не соответствует загруженной");
-        assertTrue(tasksAreEquals(taskManager1.getSubtaskById(5).get(), taskManager2.getSubtaskById(5).get()),
+        assertTrue(tasksAreEquals(taskManager1.getSubtaskById(5), taskManager2.getSubtaskById(5)),
                 "Исходная задача не соответствует загруженной");
-        assertTrue(tasksAreEquals(taskManager1.getSubtaskById(6).get(), taskManager2.getSubtaskById(6).get()),
+        assertTrue(tasksAreEquals(taskManager1.getSubtaskById(6), taskManager2.getSubtaskById(6)),
                 "Исходная задача не соответствует загруженной");
-        assertTrue(tasksAreEquals(taskManager1.getSubtaskById(7).get(), taskManager2.getSubtaskById(7).get()),
+        assertTrue(tasksAreEquals(taskManager1.getSubtaskById(7), taskManager2.getSubtaskById(7)),
                 "Исходная задача не соответствует загруженной");
 
 
