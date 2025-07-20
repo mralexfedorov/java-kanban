@@ -1,26 +1,26 @@
 package tracker.controllers;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import tracker.model.Epic;
 import tracker.model.Status;
 import tracker.model.Subtask;
 import tracker.model.Task;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class InMemoryTaskManagerTest {
+abstract class TaskManagerTest<T extends TaskManager> {
+
     TaskManager taskManager;
     final long MINUTES_IN_DAY = 60 * 24;
     final LocalDateTime TASK_START_TIME = LocalDateTime.now();
 
     @BeforeEach
     void initializeTask() {
-        taskManager = new InMemoryTaskManager();
+        taskManager = Managers.getDefault();
     }
-
     @Test
     void checkEpic() {
         Task task1 = new Task("Task 1", "Do task 1", taskManager.getTaskId(), MINUTES_IN_DAY,
