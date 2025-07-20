@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
-    private final HashMap<Integer, Task> tasks;
-    private final HashMap<Integer, Subtask> subtasks;
-    private final HashMap<Integer, Epic> epics;
+    protected final HashMap<Integer, Task> tasks;
+    protected final HashMap<Integer, Subtask> subtasks;
+    protected final HashMap<Integer, Epic> epics;
     private final HistoryManager inMemoryHistoryManager;
-    private int taskId;
+    protected int taskId;
 
     public InMemoryTaskManager() {
         tasks = new HashMap<>();
@@ -107,7 +107,7 @@ public class InMemoryTaskManager implements TaskManager {
                 epicsSubtasks.add(task);
             }
         }
-        return  epicsSubtasks;
+        return epicsSubtasks;
     }
 
     // Создание. Сам объект должен передаваться в качестве параметра.

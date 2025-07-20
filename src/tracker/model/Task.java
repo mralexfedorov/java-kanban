@@ -3,16 +3,23 @@ package tracker.model;
 import java.util.Objects;
 
 public class Task {
-    private String name;
-    private String description;
-    private final int id;
-    private Status status;
+    protected String name;
+    protected String description;
+    protected final int id;
+    protected Status status;
 
     public Task(String name, String description, int id) {
         this.name = name;
         this.description = description;
         this.id = id;
         this.status = Status.NEW;
+    }
+
+    public Task(String name, String description, int id, Status status) {
+        this.name = name;
+        this.description = description;
+        this.id = id;
+        this.status = status;
     }
 
     public String getName() {
@@ -58,11 +65,6 @@ public class Task {
 
     @Override
     public String toString() {
-        return "tracker.model.Task{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", id=" + id +
-                ", status=" + status +
-                '}';
+        return id + "," + TaskType.TASK + "," + name + "," + status + "," + description + ",";
     }
 }
