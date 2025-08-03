@@ -49,7 +49,7 @@ public class HttpTaskManagerTasksTest {
         Task task1 = new Task("Task 1", "Do task 1", 1, MINUTES_IN_DAY,
                 TASK_START_TIME.minusDays(4));
         Task task2 = new Task("Task 2", "Do task 2", 2, MINUTES_IN_DAY,
-                TASK_START_TIME.minusDays(3));
+                TASK_START_TIME.minusDays(4));
 
         String task1Json = gson.toJson(task1);
         String task2Json = gson.toJson(task2);
@@ -58,12 +58,11 @@ public class HttpTaskManagerTasksTest {
         HttpResponse<String> response;
         HttpRequest request;
 
+        // 1. создаем 1 задачу
         HttpClient client = HttpClient.newHttpClient();
         request = HttpRequest.newBuilder().uri(urlTasks).POST(HttpRequest.BodyPublishers.ofString(task1Json)).build();
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
-
-        // 1. создаем 1 задачу
+        assertEquals(201, response.statusCode());
         List<Task> tasksFromManager = taskManager.getTasks();
 
         assertNotNull(tasksFromManager, "Список задач пуст");
@@ -73,7 +72,13 @@ public class HttpTaskManagerTasksTest {
         // 2. создаем 2 задачу
         request = HttpRequest.newBuilder().uri(urlTasks).POST(HttpRequest.BodyPublishers.ofString(task2Json)).build();
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+        assertEquals(406, response.statusCode());
+
+        task2.setStartTime(TASK_START_TIME.minusDays(3));
+        task2Json = gson.toJson(task2);
+        request = HttpRequest.newBuilder().uri(urlTasks).POST(HttpRequest.BodyPublishers.ofString(task2Json)).build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response.statusCode());
 
         tasksFromManager = taskManager.getTasks();
         assertNotNull(tasksFromManager, "Список задач пуст");
@@ -111,7 +116,7 @@ public class HttpTaskManagerTasksTest {
         Subtask subtask2 = new Subtask("Subtask 2", "Do subtask 2", 4, epic1, MINUTES_IN_DAY,
                 TASK_START_TIME.minusDays(1));
         Subtask subtask3 = new Subtask("Subtask 3", "Do subtask 3", 5, epic2, MINUTES_IN_DAY,
-                TASK_START_TIME);
+                TASK_START_TIME.minusDays(1));
 
         String epic1Json = gson.toJson(epic1);
         String epic2Json = gson.toJson(epic2);
@@ -128,11 +133,11 @@ public class HttpTaskManagerTasksTest {
         HttpClient client = HttpClient.newHttpClient();
         request = HttpRequest.newBuilder().uri(urlEpics).POST(HttpRequest.BodyPublishers.ofString(epic1Json)).build();
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+        assertEquals(201, response.statusCode());
 
         request = HttpRequest.newBuilder().uri(urlEpics).POST(HttpRequest.BodyPublishers.ofString(epic2Json)).build();
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+        assertEquals(201, response.statusCode());
 
         List<Epic> epicsFromManager = taskManager.getEpics();
 
@@ -145,17 +150,24 @@ public class HttpTaskManagerTasksTest {
         request = HttpRequest.newBuilder().uri(urlSubtasks).POST(HttpRequest.BodyPublishers.ofString(subtask1Json))
                 .build();
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+        assertEquals(201, response.statusCode());
 
         request = HttpRequest.newBuilder().uri(urlSubtasks).POST(HttpRequest.BodyPublishers.ofString(subtask2Json)).
                 build();
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+        assertEquals(201, response.statusCode());
 
         request = HttpRequest.newBuilder().uri(urlSubtasks).POST(HttpRequest.BodyPublishers.ofString(subtask3Json))
                 .build();
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+        assertEquals(406, response.statusCode());
+
+        subtask3.setStartTime(TASK_START_TIME);
+        subtask3Json = gson.toJson(subtask3);
+        request = HttpRequest.newBuilder().uri(urlSubtasks).POST(HttpRequest.BodyPublishers.ofString(subtask3Json))
+                .build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response.statusCode());
 
         List<Subtask> subtasksFromManager = taskManager.getSubtasks();
 

@@ -20,7 +20,7 @@ class InMemoryHistoryManagerTest {
         taskManager = Managers.getDefault();
     }
     @Test
-    void checkInMemoryHistoryManager() {
+    void checkInMemoryHistoryManager() throws InterruptedException {
         Task task1 = new Task("Task 1", "Do task 1", taskManager.getTaskId(), MINUTES_IN_DAY,
                 TASK_START_TIME.minusDays(4));
         taskManager.createTask(task1);

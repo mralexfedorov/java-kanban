@@ -35,7 +35,7 @@ public class HttpTaskServer {
                 .create();
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         final long MINUTES_IN_DAY = 60 * 24;
         final LocalDateTime TASK_START_TIME = LocalDateTime.now();
         TaskManager inMemoryTaskManager = Managers.getDefault();
@@ -90,7 +90,7 @@ public class HttpTaskServer {
             switch (method) {
                 case "GET" -> {
                     if (partsOfPath.length == 2) {
-                        BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getTasks()));
+                        BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getTasks()), 200);
                         return;
                     } else if (partsOfPath.length == 3) {
                         int id = Integer.parseInt(partsOfPath[2]);
@@ -98,10 +98,10 @@ public class HttpTaskServer {
                         if (task == null) {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
-                            BaseHttpHandler.sendText(httpExchange, gson.toJson(task));
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(task), 200);
                         }
                     } else {
-                        BaseHttpHandler.sendNotFound(httpExchange);
+                        BaseHttpHandler.sendServerError(httpExchange);
                     }
                     httpExchange.close();
                 }
@@ -110,10 +110,14 @@ public class HttpTaskServer {
                         InputStream inputStream = httpExchange.getRequestBody();
                         String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
                         Task task = gson.fromJson(body, Task.class);
-                        taskManager.createTask(task);
-                        BaseHttpHandler.sendText(httpExchange, gson.toJson(task));
+                        try {
+                            taskManager.createTask(task);
+                        } catch (InterruptedException e) {
+                            BaseHttpHandler.sendHasOverlaps(httpExchange);
+                        }
+                        BaseHttpHandler.sendText(httpExchange, gson.toJson(task), 201);
                     } else {
-                        BaseHttpHandler.sendNotFound(httpExchange);
+                        BaseHttpHandler.sendServerError(httpExchange);
                     }
                     httpExchange.close();
                 }
@@ -125,10 +129,10 @@ public class HttpTaskServer {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
                             taskManager.deleteTask(task);
-                            BaseHttpHandler.sendText(httpExchange, gson.toJson(task));
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(task), 200);
                         }
                     } else {
-                        BaseHttpHandler.sendNotFound(httpExchange);
+                        BaseHttpHandler.sendServerError(httpExchange);
                     }
                     httpExchange.close();
                 }
@@ -146,7 +150,7 @@ public class HttpTaskServer {
             switch (method) {
                 case "GET" -> {
                     if (partsOfPath.length == 2) {
-                        BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getSubtasks()));
+                        BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getSubtasks()), 200);
                         return;
                     } else if (partsOfPath.length == 3) {
                         int id = Integer.parseInt(partsOfPath[2]);
@@ -154,10 +158,10 @@ public class HttpTaskServer {
                         if (task == null) {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
-                            BaseHttpHandler.sendText(httpExchange, gson.toJson(task));
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(task), 200);
                         }
                     } else {
-                        BaseHttpHandler.sendNotFound(httpExchange);
+                        BaseHttpHandler.sendServerError(httpExchange);
                     }
                     httpExchange.close();
                 }
@@ -166,10 +170,14 @@ public class HttpTaskServer {
                         InputStream inputStream = httpExchange.getRequestBody();
                         String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
                         Subtask task = gson.fromJson(body, Subtask.class);
-                        taskManager.createSubtask(task);
-                        BaseHttpHandler.sendText(httpExchange, gson.toJson(task));
+                        try {
+                            taskManager.createSubtask(task);
+                        } catch (InterruptedException e) {
+                            BaseHttpHandler.sendHasOverlaps(httpExchange);
+                        }
+                        BaseHttpHandler.sendText(httpExchange, gson.toJson(task), 201);
                     } else {
-                        BaseHttpHandler.sendNotFound(httpExchange);
+                        BaseHttpHandler.sendHasOverlaps(httpExchange);
                     }
                     httpExchange.close();
                 }
@@ -181,14 +189,14 @@ public class HttpTaskServer {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
                             taskManager.deleteSubtask(task);
-                            BaseHttpHandler.sendText(httpExchange, gson.toJson(task));
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(task), 200);
                         }
                     } else {
-                        BaseHttpHandler.sendNotFound(httpExchange);
+                        BaseHttpHandler.sendServerError(httpExchange);
                     }
                     httpExchange.close();
                 }
-                default -> BaseHttpHandler.sendNotFound(httpExchange);
+                default -> BaseHttpHandler.sendServerError(httpExchange);
             }
         }
     }
@@ -202,7 +210,7 @@ public class HttpTaskServer {
             switch (method) {
                 case "GET" -> {
                     if (partsOfPath.length == 2) {
-                        BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getEpics()));
+                        BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getEpics()), 200);
                         return;
                     } else if (partsOfPath.length == 3) {
                         int id = Integer.parseInt(partsOfPath[2]);
@@ -210,7 +218,7 @@ public class HttpTaskServer {
                         if (epic == null) {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
-                            BaseHttpHandler.sendText(httpExchange, gson.toJson(epic));
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(epic), 200);
                         }
                     } else if (partsOfPath.length == 4 && partsOfPath[3].equals("subtasks")) {
                         int id = Integer.parseInt(partsOfPath[2]);
@@ -218,10 +226,11 @@ public class HttpTaskServer {
                         if (epic == null) {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
-                            BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getEpicsSubtasks(id)));
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getEpicsSubtasks(id)),
+                                    200);
                         }
                     } else {
-                        BaseHttpHandler.sendNotFound(httpExchange);
+                        BaseHttpHandler.sendServerError(httpExchange);
                     }
                     httpExchange.close();
                 }
@@ -231,9 +240,9 @@ public class HttpTaskServer {
                         String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
                         Epic epic = gson.fromJson(body, Epic.class);
                         taskManager.createEpic(epic);
-                        BaseHttpHandler.sendText(httpExchange, gson.toJson(epic));
+                        BaseHttpHandler.sendText(httpExchange, gson.toJson(epic), 201);
                     } else {
-                        BaseHttpHandler.sendNotFound(httpExchange);
+                        BaseHttpHandler.sendServerError(httpExchange);
                     }
                     httpExchange.close();
                 }
@@ -245,14 +254,14 @@ public class HttpTaskServer {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
                             taskManager.deleteEpic(epic);
-                            BaseHttpHandler.sendText(httpExchange, gson.toJson(epic));
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(epic), 200);
                         }
                     } else {
-                        BaseHttpHandler.sendNotFound(httpExchange);
+                        BaseHttpHandler.sendServerError(httpExchange);
                     }
                     httpExchange.close();
                 }
-                default -> BaseHttpHandler.sendNotFound(httpExchange);
+                default -> BaseHttpHandler.sendServerError(httpExchange);
             }
         }
     }
@@ -265,14 +274,14 @@ public class HttpTaskServer {
             String[] partsOfPath = path.split("/");
             if (method.equals("GET")) {
                 if (partsOfPath.length == 2) {
-                    BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getHistory()));
+                    BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getHistory()), 200);
                     return;
                 } else {
-                    BaseHttpHandler.sendNotFound(httpExchange);
+                    BaseHttpHandler.sendServerError(httpExchange);
                 }
                 httpExchange.close();
             } else {
-                BaseHttpHandler.sendNotFound(httpExchange);
+                BaseHttpHandler.sendServerError(httpExchange);
             }
         }
     }
@@ -285,14 +294,14 @@ public class HttpTaskServer {
             String[] partsOfPath = path.split("/");
             if (method.equals("GET")) {
                 if (partsOfPath.length == 2) {
-                    BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getPrioritizedTasks()));
+                    BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getPrioritizedTasks()), 200);
                     return;
                 } else {
-                    BaseHttpHandler.sendNotFound(httpExchange);
+                    BaseHttpHandler.sendServerError(httpExchange);
                 }
                 httpExchange.close();
             } else {
-                BaseHttpHandler.sendNotFound(httpExchange);
+                BaseHttpHandler.sendServerError(httpExchange);
             }
         }
     }

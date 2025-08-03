@@ -77,19 +77,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
             System.out.println(fileBackedTasksManagerRestored.getHistory());
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             System.out.println("Ошибка создания файла");
         }
     }
 
     @Override
-    public void createTask(Task task) {
+    public void createTask(Task task) throws InterruptedException {
         super.createTask(task);
         save();
     }
 
     @Override
-    public void createSubtask(Subtask subtask) {
+    public void createSubtask(Subtask subtask) throws InterruptedException {
         super.createSubtask(subtask);
         save();
     }
@@ -101,13 +101,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws InterruptedException {
         super.updateTask(task);
         save();
     }
 
     @Override
-    public void updateSubtask(Subtask task) {
+    public void updateSubtask(Subtask task) throws InterruptedException {
         super.updateSubtask(task);
         save();
     }

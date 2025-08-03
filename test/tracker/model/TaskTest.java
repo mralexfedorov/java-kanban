@@ -16,7 +16,7 @@ class TaskTest {
     }
 
     @Test
-    void checkTask() {
+    void checkTask() throws InterruptedException {
         Task task1 = new Task("Task 1", "Do task 1", 1);
         inMemoryTaskManager.createTask(task1);
         Task task2 = new Task("Task 2", "Do task 2", 1);

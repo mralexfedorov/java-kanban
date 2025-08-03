@@ -20,7 +20,7 @@ class SubtaskTest {
     }
 
     @Test
-    void checkSubtask() {
+    void checkSubtask() throws InterruptedException {
         Epic epic1 = new Epic("Epic 1", "Do all subtasks from epic 1",
                 inMemoryTaskManager.getTaskId());
         inMemoryTaskManager.createEpic(epic1);

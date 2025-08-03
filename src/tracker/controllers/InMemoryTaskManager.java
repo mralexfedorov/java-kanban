@@ -133,18 +133,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Создание. Сам объект должен передаваться в качестве параметра.
     @Override
-    public void createTask(Task task) {
+    public void createTask(Task task) throws InterruptedException {
         if (noIntersectionWithTasks(task)) {
             tasks.put(taskId, task);
             sortedTasks.add(task);
             taskId++;
         } else {
             System.out.println("Пересечение с текущими задачами");
+            throw new InterruptedException();
         }
     }
 
     @Override
-    public void createSubtask(Subtask task) {
+    public void createSubtask(Subtask task) throws InterruptedException {
         if (noIntersectionWithTasks(task)) {
             subtasks.put(taskId, task);
             sortedTasks.add(task);
@@ -153,6 +154,7 @@ public class InMemoryTaskManager implements TaskManager {
             taskId++;
         } else {
             System.out.println("Пересечение с текущими задачами.");
+            throw new InterruptedException();
         }
     }
 
@@ -164,7 +166,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws InterruptedException {
         Task updatedTask = tasks.get(task.getId());
         if (updatedTask == null) {
             System.out.println("Задача с id = " + task.getId() + " не найдена");
@@ -175,11 +177,12 @@ public class InMemoryTaskManager implements TaskManager {
             sortedTasks.add(task);
         } else {
             System.out.println("Пересечение с текущими задачами");
+            throw new InterruptedException();
         }
     }
 
     @Override
-    public void updateSubtask(Subtask task) {
+    public void updateSubtask(Subtask task) throws InterruptedException {
         Subtask updatedTask = subtasks.get(task.getId());
         if (updatedTask == null) {
             System.out.println("Задача с id = " + task.getId() + " не найдена");
@@ -192,6 +195,7 @@ public class InMemoryTaskManager implements TaskManager {
             updateEpicEndTimeAndDuration(task.getEpic());
         } else {
             System.out.println("Пересечение с текущими задачами");
+            throw new InterruptedException();
         }
     }
 
