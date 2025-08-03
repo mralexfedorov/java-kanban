@@ -53,12 +53,10 @@ public class HttpTaskManagerTasksTest {
         HttpResponse<String> response;
         HttpRequest request;
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            request = HttpRequest.newBuilder().uri(urlTasks).POST(HttpRequest.BodyPublishers.ofString(task1Json))
-                    .build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
-        }
+        HttpClient client = HttpClient.newHttpClient();
+        request = HttpRequest.newBuilder().uri(urlTasks).POST(HttpRequest.BodyPublishers.ofString(task1Json)).build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
         // 1. создаем 1 задачу
         List<Task> tasksFromManager = taskManager.getTasks();
@@ -68,12 +66,9 @@ public class HttpTaskManagerTasksTest {
         assertEquals("Task 1", tasksFromManager.get(0).getName(), "Некорректное имя задачи");
 
         // 2. создаем 2 задачу
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            request = HttpRequest.newBuilder().uri(urlTasks).POST(HttpRequest.BodyPublishers.ofString(task2Json))
-                    .build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
-        }
+        request = HttpRequest.newBuilder().uri(urlTasks).POST(HttpRequest.BodyPublishers.ofString(task2Json)).build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
         tasksFromManager = taskManager.getTasks();
         assertNotNull(tasksFromManager, "Список задач пуст");
@@ -82,12 +77,9 @@ public class HttpTaskManagerTasksTest {
         assertEquals("Task 2", tasksFromManager.get(1).getName(), "Некорректное имя задачи");
 
         // 3. удаляем 1 задачу
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/tasks/" + task1.getId())).DELETE()
-                    .build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
-        }
+        request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/tasks/" + task1.getId())).DELETE().build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
         tasksFromManager = taskManager.getTasks();
         assertNotNull(tasksFromManager, "Список задач пуст");
@@ -95,17 +87,16 @@ public class HttpTaskManagerTasksTest {
         assertEquals("Task 2", tasksFromManager.get(1).getName(), "Некорректное имя задачи");
 
         // 4. удаляем 2 задачу
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/tasks/" + task1.getId())).DELETE()
-                    .build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
-        }
+        request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/tasks/" + task1.getId())).DELETE()
+                .build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
         tasksFromManager = taskManager.getTasks();
         assertEquals(0, tasksFromManager.size(), "Некорректное количество задач");
     }
 
+    @Test
     public void checkEpicsAndSubtasks() throws IOException, InterruptedException {
         Epic epic1 = new Epic("Epic 1", "Do all subtasks from epic 1", taskManager.getTaskId());
         Epic epic2 = new Epic("Epic 2", "Do all subtasks from epic 2", taskManager.getTaskId());
@@ -128,17 +119,14 @@ public class HttpTaskManagerTasksTest {
         HttpRequest request;
         HttpResponse<String> response;
         // 1. Создаем эпики
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            request = HttpRequest.newBuilder().uri(urlEpics).POST(HttpRequest.BodyPublishers.
-                    ofString(epic1Json)).build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
+        HttpClient client = HttpClient.newHttpClient();
+        request = HttpRequest.newBuilder().uri(urlEpics).POST(HttpRequest.BodyPublishers.ofString(epic1Json)).build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
-            request = HttpRequest.newBuilder().uri(urlEpics).POST(HttpRequest.BodyPublishers.
-                    ofString(epic2Json)).build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
-        }
+        request = HttpRequest.newBuilder().uri(urlEpics).POST(HttpRequest.BodyPublishers.ofString(epic2Json)).build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
         List<Epic> epicsFromManager = taskManager.getEpics();
 
@@ -148,22 +136,19 @@ public class HttpTaskManagerTasksTest {
         assertEquals("Epic 2", epicsFromManager.get(1).getName(), "Некорректное имя эпика");
 
         // 2. Создаем подзадачи
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            HttpRequest.newBuilder().uri(urlSubtasks).POST(HttpRequest.BodyPublishers.
-                    ofString(subtask1Json)).build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
+        HttpRequest.newBuilder().uri(urlSubtasks).POST(HttpRequest.BodyPublishers.ofString(subtask1Json)).build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
-            request = HttpRequest.newBuilder().uri(urlSubtasks).POST(HttpRequest.BodyPublishers.
-                    ofString(subtask2Json)).build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
+        request = HttpRequest.newBuilder().uri(urlSubtasks).POST(HttpRequest.BodyPublishers.ofString(subtask2Json)).
+                build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
-            request = HttpRequest.newBuilder().uri(urlSubtasks).POST(HttpRequest.BodyPublishers.
-                    ofString(subtask3Json)).build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
-        }
+        request = HttpRequest.newBuilder().uri(urlSubtasks).POST(HttpRequest.BodyPublishers.ofString(subtask3Json))
+                .build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
         List<Subtask> subtasksFromManager = taskManager.getSubtasks();
 
@@ -174,38 +159,34 @@ public class HttpTaskManagerTasksTest {
         assertEquals("Subtask 3", subtasksFromManager.get(2).getName(), "Некорректное имя подзадачи");
 
         // 3. удаляем подзадачи
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/subtasks/" + subtask1.getId()))
-                    .DELETE().build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
+        request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/subtasks/" + subtask1.getId()))
+                .DELETE().build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
-            request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/subtasks/" + subtask2.getId()))
+        request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/subtasks/" + subtask2.getId()))
                     .DELETE().build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
-            request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/subtasks/" + subtask3.getId()))
+        request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/subtasks/" + subtask3.getId()))
                     .DELETE().build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
-        }
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
         subtasksFromManager = taskManager.getSubtasks();
         assertEquals(0, subtasksFromManager.size(), "Некорректное количество задач");
 
         // 4. удаляем эпики
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/epics/" + epic1.getId()))
+        request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/epics/" + epic1.getId()))
                     .DELETE().build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
-            request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/epics/" + epic2.getId()))
+        request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/epics/" + epic2.getId()))
                     .DELETE().build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            assertEquals(200, response.statusCode());
-        }
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
 
         epicsFromManager = taskManager.getEpics();
         assertEquals(0, epicsFromManager.size(), "Некорректное количество задач");

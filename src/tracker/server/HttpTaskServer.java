@@ -34,7 +34,7 @@ public class HttpTaskServer {
         final long MINUTES_IN_DAY = 60 * 24;
         final LocalDateTime TASK_START_TIME = LocalDateTime.now();
         TaskManager inMemoryTaskManager = Managers.getDefault();
-        HttpTaskServer taskServer = new HttpTaskServer(80, inMemoryTaskManager);
+        HttpTaskServer taskServer = new HttpTaskServer(8080, inMemoryTaskManager);
         taskServer.start();
 
         // Создайте две задачи, а также эпик с двумя подзадачами и эпик с одной подзадачей
