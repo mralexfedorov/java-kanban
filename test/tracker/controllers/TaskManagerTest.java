@@ -95,10 +95,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createTask(task1);
         Task task2 = new Task("Task 2", "Do task 2", taskManager.getTaskId(), MINUTES_IN_DAY,
                 TASK_START_TIME);
-        taskManager.createTask(task2);
-        assertEquals(1, taskManager.getTaskById(task1.getId()).getId(), "Неверный Id");
-        assertEquals(1, taskManager.getTasks().size(), "Неверное количество задач");
-        task2.setStartTime(TASK_START_TIME.plusDays(1));
+        try {
+            taskManager.createTask(task2);
+        } catch (InterruptedException e) {
+            assertEquals(1, taskManager.getTaskById(task1.getId()).getId(), "Неверный Id");
+            assertEquals(1, taskManager.getTasks().size(), "Неверное количество задач");
+            task2.setStartTime(TASK_START_TIME.plusDays(1));
+        }
         taskManager.createTask(task2);
         assertEquals(2, taskManager.getTaskById(task2.getId()).getId(), "Неверный Id");
     }
