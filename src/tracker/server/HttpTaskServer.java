@@ -1,18 +1,18 @@
 package tracker.server;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import tracker.controllers.Managers;
 import tracker.controllers.TaskManager;
 import tracker.model.Epic;
+import tracker.model.LocalDateAdapter;
 import tracker.model.Subtask;
 import tracker.model.Task;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -22,12 +22,17 @@ public class HttpTaskServer {
     private final int port;
     final TaskManager taskManager;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-    private static final Gson gson = new Gson();
+
+    private static Gson gson;
     private HttpServer httpServer;
 
     public HttpTaskServer(int port, TaskManager taskManager) {
         this.port = port;
         this.taskManager = taskManager;
+        gson = new GsonBuilder()
+                .serializeNulls()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
+                .create();
     }
 
     public static void main(String[] args) throws IOException {
@@ -85,10 +90,7 @@ public class HttpTaskServer {
             switch (method) {
                 case "GET" -> {
                     if (partsOfPath.length == 2) {
-                        BaseHttpHandler.sendText(httpExchange, "Получен список задач");
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(gson.toJson(taskManager.getTasks()).getBytes());
-                        }
+                        BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getTasks()));
                         return;
                     } else if (partsOfPath.length == 3) {
                         int id = Integer.parseInt(partsOfPath[2]);
@@ -96,10 +98,7 @@ public class HttpTaskServer {
                         if (task == null) {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
-                            BaseHttpHandler.sendText(httpExchange, "Задача с id=" + task.getId() + " найдена");
-                            try (OutputStream os = httpExchange.getResponseBody()) {
-                                os.write(gson.toJson(task).getBytes());
-                            }
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(task));
                         }
                     } else {
                         BaseHttpHandler.sendNotFound(httpExchange);
@@ -107,12 +106,12 @@ public class HttpTaskServer {
                     httpExchange.close();
                 }
                 case "POST" -> {
-                    if (partsOfPath.length == 3) {
+                    if (partsOfPath.length == 2) {
                         InputStream inputStream = httpExchange.getRequestBody();
                         String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
                         Task task = gson.fromJson(body, Task.class);
                         taskManager.createTask(task);
-                        BaseHttpHandler.sendText(httpExchange, "Задача с id=" + task.getId() + " создана");
+                        BaseHttpHandler.sendText(httpExchange, gson.toJson(task));
                     } else {
                         BaseHttpHandler.sendNotFound(httpExchange);
                     }
@@ -126,7 +125,7 @@ public class HttpTaskServer {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
                             taskManager.deleteTask(task);
-                            BaseHttpHandler.sendText(httpExchange, "Задача с id=" + task.getId() + " удалена");
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(task));
                         }
                     } else {
                         BaseHttpHandler.sendNotFound(httpExchange);
@@ -147,10 +146,7 @@ public class HttpTaskServer {
             switch (method) {
                 case "GET" -> {
                     if (partsOfPath.length == 2) {
-                        BaseHttpHandler.sendText(httpExchange, "Получен список подзадач");
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(gson.toJson(taskManager.getSubtasks()).getBytes());
-                        }
+                        BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getSubtasks()));
                         return;
                     } else if (partsOfPath.length == 3) {
                         int id = Integer.parseInt(partsOfPath[2]);
@@ -158,10 +154,7 @@ public class HttpTaskServer {
                         if (task == null) {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
-                            BaseHttpHandler.sendText(httpExchange, "Подзадача с id=" + task.getId() + " найдена");
-                            try (OutputStream os = httpExchange.getResponseBody()) {
-                                os.write(gson.toJson(task).getBytes());
-                            }
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(task));
                         }
                     } else {
                         BaseHttpHandler.sendNotFound(httpExchange);
@@ -169,12 +162,12 @@ public class HttpTaskServer {
                     httpExchange.close();
                 }
                 case "POST" -> {
-                    if (partsOfPath.length == 3) {
+                    if (partsOfPath.length == 2) {
                         InputStream inputStream = httpExchange.getRequestBody();
                         String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
                         Subtask task = gson.fromJson(body, Subtask.class);
                         taskManager.createSubtask(task);
-                        BaseHttpHandler.sendText(httpExchange, "Подзадача с id=" + task.getId() + " создана");
+                        BaseHttpHandler.sendText(httpExchange, gson.toJson(task));
                     } else {
                         BaseHttpHandler.sendNotFound(httpExchange);
                     }
@@ -187,8 +180,8 @@ public class HttpTaskServer {
                         if (task == null) {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
-                            taskManager.deleteTask(task);
-                            BaseHttpHandler.sendText(httpExchange, "Подзадача с id=" + task.getId() + " удалена");
+                            taskManager.deleteSubtask(task);
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(task));
                         }
                     } else {
                         BaseHttpHandler.sendNotFound(httpExchange);
@@ -209,10 +202,7 @@ public class HttpTaskServer {
             switch (method) {
                 case "GET" -> {
                     if (partsOfPath.length == 2) {
-                        BaseHttpHandler.sendText(httpExchange, "Получен список эпиков");
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(gson.toJson(taskManager.getEpics()).getBytes());
-                        }
+                        BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getEpics()));
                         return;
                     } else if (partsOfPath.length == 3) {
                         int id = Integer.parseInt(partsOfPath[2]);
@@ -220,10 +210,7 @@ public class HttpTaskServer {
                         if (epic == null) {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
-                            BaseHttpHandler.sendText(httpExchange, "Эпик с id=" + epic.getId() + " найден");
-                            try (OutputStream os = httpExchange.getResponseBody()) {
-                                os.write(gson.toJson(epic).getBytes());
-                            }
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(epic));
                         }
                     } else if (partsOfPath.length == 4 && partsOfPath[3].equals("subtasks")) {
                         int id = Integer.parseInt(partsOfPath[2]);
@@ -231,10 +218,7 @@ public class HttpTaskServer {
                         if (epic == null) {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
-                            BaseHttpHandler.sendText(httpExchange, "Эпик с id=" + epic.getId() + " найден");
-                            try (OutputStream os = httpExchange.getResponseBody()) {
-                                os.write(gson.toJson(taskManager.getEpicsSubtasks(id)).getBytes());
-                            }
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getEpicsSubtasks(id)));
                         }
                     } else {
                         BaseHttpHandler.sendNotFound(httpExchange);
@@ -242,12 +226,12 @@ public class HttpTaskServer {
                     httpExchange.close();
                 }
                 case "POST" -> {
-                    if (partsOfPath.length == 3) {
+                    if (partsOfPath.length == 2) {
                         InputStream inputStream = httpExchange.getRequestBody();
                         String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
                         Epic epic = gson.fromJson(body, Epic.class);
                         taskManager.createEpic(epic);
-                        BaseHttpHandler.sendText(httpExchange, "Эпик с id=" + epic.getId() + " создан");
+                        BaseHttpHandler.sendText(httpExchange, gson.toJson(epic));
                     } else {
                         BaseHttpHandler.sendNotFound(httpExchange);
                     }
@@ -261,7 +245,7 @@ public class HttpTaskServer {
                             BaseHttpHandler.sendNotFound(httpExchange);
                         } else {
                             taskManager.deleteEpic(epic);
-                            BaseHttpHandler.sendText(httpExchange, "Эпик с id=" + epic.getId() + " удален");
+                            BaseHttpHandler.sendText(httpExchange, gson.toJson(epic));
                         }
                     } else {
                         BaseHttpHandler.sendNotFound(httpExchange);
@@ -281,10 +265,7 @@ public class HttpTaskServer {
             String[] partsOfPath = path.split("/");
             if (method.equals("GET")) {
                 if (partsOfPath.length == 2) {
-                    BaseHttpHandler.sendText(httpExchange, "Получена история просмотра задач");
-                    try (OutputStream os = httpExchange.getResponseBody()) {
-                        os.write(gson.toJson(taskManager.getHistory()).getBytes());
-                    }
+                    BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getHistory()));
                     return;
                 } else {
                     BaseHttpHandler.sendNotFound(httpExchange);
@@ -304,10 +285,7 @@ public class HttpTaskServer {
             String[] partsOfPath = path.split("/");
             if (method.equals("GET")) {
                 if (partsOfPath.length == 2) {
-                    BaseHttpHandler.sendText(httpExchange, "Получен отсортированный список задач");
-                    try (OutputStream os = httpExchange.getResponseBody()) {
-                        os.write(gson.toJson(taskManager.getPrioritizedTasks()).getBytes());
-                    }
+                    BaseHttpHandler.sendText(httpExchange, gson.toJson(taskManager.getPrioritizedTasks()));
                     return;
                 } else {
                     BaseHttpHandler.sendNotFound(httpExchange);
