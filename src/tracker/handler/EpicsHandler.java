@@ -8,7 +8,7 @@ import tracker.model.Epic;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class EpicsHandler extends BaseHttpHandler{
+public class EpicsHandler extends BaseHttpHandler {
     public EpicsHandler(Gson gson, TaskManager taskManager) {
         super(gson, taskManager);
     }

@@ -6,7 +6,7 @@ import tracker.controllers.TaskManager;
 
 import java.io.IOException;
 
-public class HistoryHandler extends BaseHttpHandler{
+public class HistoryHandler extends BaseHttpHandler {
     public HistoryHandler(Gson gson, TaskManager taskManager) {
         super(gson, taskManager);
     }

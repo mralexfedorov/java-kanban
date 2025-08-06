@@ -6,7 +6,7 @@ import tracker.controllers.TaskManager;
 
 import java.io.IOException;
 
-public class PrioritizedHandler extends BaseHttpHandler{
+public class PrioritizedHandler extends BaseHttpHandler {
     public PrioritizedHandler(Gson gson, TaskManager taskManager) {
         super(gson, taskManager);
     }
