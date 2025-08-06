@@ -36,16 +36,16 @@ public interface TaskManager {
     ArrayList<Subtask> getEpicsSubtasks(int epicId);
 
     // Создание. Сам объект должен передаваться в качестве параметра.
-    void createTask(Task task) throws InterruptedException;
+    void createTask(Task task);
 
-    void createSubtask(Subtask task) throws InterruptedException;
+    void createSubtask(Subtask task);
 
     void createEpic(Epic task);
 
     // Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
-    void updateTask(Task task) throws InterruptedException;
+    void updateTask(Task task);
 
-    void updateSubtask(Subtask task) throws InterruptedException;
+    void updateSubtask(Subtask task);
 
     void updateEpicStatus(Epic epic);
 

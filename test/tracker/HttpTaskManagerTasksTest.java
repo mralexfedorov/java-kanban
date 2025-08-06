@@ -1,14 +1,11 @@
 package tracker;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import tracker.controllers.InMemoryTaskManager;
 import tracker.controllers.TaskManager;
 import tracker.model.Epic;
-import tracker.model.LocalDateAdapter;
 import tracker.model.Subtask;
 import tracker.model.Task;
 import tracker.server.HttpTaskServer;
@@ -27,15 +24,15 @@ public class HttpTaskManagerTasksTest {
 
     TaskManager taskManager = new InMemoryTaskManager();
     HttpTaskServer taskServer = new HttpTaskServer(8080, taskManager);
-    private static final Gson gson = new GsonBuilder()
-                .serializeNulls()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
-            .create();
+
     final long MINUTES_IN_DAY = 60 * 24;
     final LocalDateTime TASK_START_TIME = LocalDateTime.now();
 
+    public HttpTaskManagerTasksTest() throws IOException {
+    }
+
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         taskServer.start();
     }
 
@@ -46,13 +43,10 @@ public class HttpTaskManagerTasksTest {
 
     @Test
     public void testTasks() throws IOException, InterruptedException {
-        Task task1 = new Task("Task 1", "Do task 1", 1, MINUTES_IN_DAY,
-                TASK_START_TIME.minusDays(4));
-        Task task2 = new Task("Task 2", "Do task 2", 2, MINUTES_IN_DAY,
-                TASK_START_TIME.minusDays(4));
-
-        String task1Json = gson.toJson(task1);
-        String task2Json = gson.toJson(task2);
+        String task1Json = "{\"name\":\"Task 1\",\"description\":\"Do task 1\",\"status\":\"NEW\"" +
+                ",\"duration\":" + MINUTES_IN_DAY + ",\"startTime\": \"" + TASK_START_TIME.minusDays(4) + "\"}";
+        String task2Json = "{\"name\":\"Task 2\",\"description\":\"Do task 2\",\"status\":\"NEW\"" +
+                ",\"duration\":" + MINUTES_IN_DAY + ",\"startTime\": \"" + TASK_START_TIME.minusDays(4) + "\"}";
         URI urlTasks = URI.create("http://localhost:8080/tasks");
 
         HttpResponse<String> response;
@@ -74,8 +68,8 @@ public class HttpTaskManagerTasksTest {
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(406, response.statusCode());
 
-        task2.setStartTime(TASK_START_TIME.minusDays(3));
-        task2Json = gson.toJson(task2);
+        task2Json = "{\"name\":\"Task 2\",\"description\":\"Do task 2\",\"status\":\"NEW\"" +
+                ",\"duration\":" + MINUTES_IN_DAY + ",\"startTime\": \"" + TASK_START_TIME.minusDays(3) + "\"}";
         request = HttpRequest.newBuilder().uri(urlTasks).POST(HttpRequest.BodyPublishers.ofString(task2Json)).build();
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, response.statusCode());
@@ -109,20 +103,27 @@ public class HttpTaskManagerTasksTest {
 
     @Test
     public void checkEpicsAndSubtasks() throws IOException, InterruptedException {
-        Epic epic1 = new Epic("Epic 1", "Do all subtasks from epic 1", 1);
-        Epic epic2 = new Epic("Epic 2", "Do all subtasks from epic 2", 2);
-        Subtask subtask1 = new Subtask("Subtask 1", "Do subtask 1", 3, epic1, MINUTES_IN_DAY,
-                TASK_START_TIME.minusDays(2));
-        Subtask subtask2 = new Subtask("Subtask 2", "Do subtask 2", 4, epic1, MINUTES_IN_DAY,
-                TASK_START_TIME.minusDays(1));
-        Subtask subtask3 = new Subtask("Subtask 3", "Do subtask 3", 5, epic2, MINUTES_IN_DAY,
-                TASK_START_TIME.minusDays(1));
-
-        String epic1Json = gson.toJson(epic1);
-        String epic2Json = gson.toJson(epic2);
-        String subtask1Json = gson.toJson(subtask1);
-        String subtask2Json = gson.toJson(subtask2);
-        String subtask3Json = gson.toJson(subtask3);
+        String epic1Json = "{\"endTime\":\"1970-01-01T00:00:00\",\"emptyDateTime\":\"1970-01-01T00:00:00\"" +
+                ",\"name\":\"Epic 1\",\"description\":\"Do all subtasks from epic 1\",\"id\":1,\"status\":null" +
+                ",\"duration\":0,\"startTime\":\"1970-01-01T00:00:00\"}";
+        String epic2Json = "{\"endTime\":\"1970-01-01T00:00:00\",\"emptyDateTime\":\"1970-01-01T00:00:00\"" +
+                ",\"name\":\"Epic 2\",\"description\":\"Do all subtasks from epic 2\",\"id\":2,\"status\":null" +
+                ",\"duration\":0,\"startTime\":\"1970-01-01T00:00:00\"}";
+        String subtask1Json = "{\"epic\":{\"endTime\":\"1970-01-01T00:00:00\",\"emptyDateTime\":\"1970-01-01T00:00:00\"" +
+                ",\"name\":\"Epic 1\",\"description\":\"Do all subtasks from epic 1\",\"id\":1,\"status\":null" +
+                ",\"duration\":0,\"startTime\":\"1970-01-01T00:00:00\"},\"name\":\"Subtask 1\"" +
+                ",\"description\":\"Do subtask 1\",\"status\":\"NEW\",\"duration\":" + MINUTES_IN_DAY +
+                ",\"startTime\":\"" + TASK_START_TIME.minusDays(3) + "\"}";
+        String subtask2Json = "{\"epic\":{\"endTime\":\"1970-01-01T00:00:00\",\"emptyDateTime\":\"1970-01-01T00:00:00\"" +
+                ",\"name\":\"Epic 1\",\"description\":\"Do all subtasks from epic 1\",\"id\":1,\"status\":null" +
+                ",\"duration\":0,\"startTime\":\"1970-01-01T00:00:00\"},\"name\":\"Subtask 2\"" +
+                ",\"description\":\"Do subtask 2\",\"status\":\"NEW\",\"duration\":" + MINUTES_IN_DAY +
+                ",\"startTime\":\"" + TASK_START_TIME.minusDays(2) + "\"}";
+        String subtask3Json = "{\"epic\":{\"endTime\":\"1970-01-01T00:00:00\",\"emptyDateTime\":\"1970-01-01T00:00:00\"" +
+                ",\"name\":\"Epic 2\",\"description\":\"Do all subtasks from epic 2\",\"id\":2,\"status\":null" +
+                ",\"duration\":0,\"startTime\":\"1970-01-01T00:00:00\"},\"name\":\"Subtask 3\"" +
+                ",\"description\":\"Do subtask 3\",\"status\":\"NEW\",\"duration\":" + MINUTES_IN_DAY +
+                ",\"startTime\":\"" + TASK_START_TIME.minusDays(2) + "\"}";
 
         URI urlEpics = URI.create("http://localhost:8080/epics");
         URI urlSubtasks = URI.create("http://localhost:8080/subtasks");
@@ -162,8 +163,11 @@ public class HttpTaskManagerTasksTest {
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(406, response.statusCode());
 
-        subtask3.setStartTime(TASK_START_TIME);
-        subtask3Json = gson.toJson(subtask3);
+        subtask3Json = "{\"epic\":{\"endTime\":\"1970-01-01T00:00:00\",\"emptyDateTime\":\"1970-01-01T00:00:00\"" +
+                ",\"name\":\"Epic 2\",\"description\":\"Do all subtasks from epic 2\",\"id\":2,\"status\":null" +
+                ",\"duration\":0,\"startTime\":\"1970-01-01T00:00:00\"},\"name\":\"Subtask 3\"" +
+                ",\"description\":\"Do subtask 3\",\"status\":\"NEW\",\"duration\":" + MINUTES_IN_DAY +
+                ",\"startTime\":\"" + TASK_START_TIME.minusDays(1) + "\"}";
         request = HttpRequest.newBuilder().uri(urlSubtasks).POST(HttpRequest.BodyPublishers.ofString(subtask3Json))
                 .build();
         response = client.send(request, HttpResponse.BodyHandlers.ofString());

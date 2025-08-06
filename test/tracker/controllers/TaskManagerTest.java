@@ -1,6 +1,7 @@
 package tracker.controllers;
 
 import org.junit.jupiter.api.Test;
+import tracker.exceptions.OverlapsException;
 import tracker.model.Epic;
 import tracker.model.Status;
 import tracker.model.Subtask;
@@ -48,7 +49,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void checkEpicStatus() throws InterruptedException {
+    void checkEpicStatus() throws OverlapsException {
         // Все подзадачи со статусом NEW.
         Epic epic1 = new Epic("Epic 1", "Do all subtasks from epic 1", taskManager.getTaskId());
         taskManager.createEpic(epic1);
@@ -88,7 +89,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void checkTaskIntersection() throws InterruptedException {
+    void checkTaskIntersection() throws OverlapsException {
         // При наличии пересечения по времени выполнения задача не будет создана
         Task task1 = new Task("Task 1", "Do task 1", taskManager.getTaskId(), MINUTES_IN_DAY,
                 TASK_START_TIME);
@@ -97,7 +98,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 TASK_START_TIME);
         try {
             taskManager.createTask(task2);
-        } catch (InterruptedException e) {
+        } catch (OverlapsException e) {
             assertEquals(1, taskManager.getTaskById(task1.getId()).getId(), "Неверный Id");
             assertEquals(1, taskManager.getTasks().size(), "Неверное количество задач");
             task2.setStartTime(TASK_START_TIME.plusDays(1));

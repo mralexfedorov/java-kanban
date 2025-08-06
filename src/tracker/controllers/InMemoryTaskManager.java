@@ -1,5 +1,6 @@
 package tracker.controllers;
 
+import tracker.exceptions.OverlapsException;
 import tracker.model.Epic;
 import tracker.model.Status;
 import tracker.model.Subtask;
@@ -133,29 +134,21 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Создание. Сам объект должен передаваться в качестве параметра.
     @Override
-    public void createTask(Task task) throws InterruptedException {
-        if (noIntersectionWithTasks(task)) {
-            tasks.put(taskId, task);
-            sortedTasks.add(task);
-            taskId++;
-        } else {
-            System.out.println("Пересечение с текущими задачами");
-            throw new InterruptedException();
-        }
+    public void createTask(Task task) {
+        hasIntersectionWithTasks(task);
+        tasks.put(taskId, task);
+        sortedTasks.add(task);
+        taskId++;
     }
 
     @Override
-    public void createSubtask(Subtask task) throws InterruptedException {
-        if (noIntersectionWithTasks(task)) {
-            subtasks.put(taskId, task);
-            sortedTasks.add(task);
-            updateEpicStatus(task.getEpic());
-            updateEpicEndTimeAndDuration(task.getEpic());
-            taskId++;
-        } else {
-            System.out.println("Пересечение с текущими задачами.");
-            throw new InterruptedException();
-        }
+    public void createSubtask(Subtask task) {
+        hasIntersectionWithTasks(task);
+        subtasks.put(taskId, task);
+        sortedTasks.add(task);
+        updateEpicStatus(task.getEpic());
+        updateEpicEndTimeAndDuration(task.getEpic());
+        taskId++;
     }
 
     @Override
@@ -166,37 +159,29 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
     @Override
-    public void updateTask(Task task) throws InterruptedException {
+    public void updateTask(Task task) {
         Task updatedTask = tasks.get(task.getId());
         if (updatedTask == null) {
             System.out.println("Задача с id = " + task.getId() + " не найдена");
         }
-        if (noIntersectionWithTasks(task)) {
-            sortedTasks.remove(updatedTask);
-            tasks.put(task.getId(), task);
-            sortedTasks.add(task);
-        } else {
-            System.out.println("Пересечение с текущими задачами");
-            throw new InterruptedException();
-        }
+        hasIntersectionWithTasks(task);
+        sortedTasks.remove(updatedTask);
+        tasks.put(task.getId(), task);
+        sortedTasks.add(task);
     }
 
     @Override
-    public void updateSubtask(Subtask task) throws InterruptedException {
+    public void updateSubtask(Subtask task) {
         Subtask updatedTask = subtasks.get(task.getId());
         if (updatedTask == null) {
             System.out.println("Задача с id = " + task.getId() + " не найдена");
         }
-        if (noIntersectionWithTasks(task)) {
-            sortedTasks.remove(updatedTask);
-            subtasks.put(task.getId(), task);
-            sortedTasks.add(task);
-            updateEpicStatus(task.getEpic());
-            updateEpicEndTimeAndDuration(task.getEpic());
-        } else {
-            System.out.println("Пересечение с текущими задачами");
-            throw new InterruptedException();
-        }
+        hasIntersectionWithTasks(task);
+        sortedTasks.remove(updatedTask);
+        subtasks.put(task.getId(), task);
+        sortedTasks.add(task);
+        updateEpicStatus(task.getEpic());
+        updateEpicEndTimeAndDuration(task.getEpic());
     }
 
     @Override
@@ -307,12 +292,14 @@ public class InMemoryTaskManager implements TaskManager {
                 && (endTime1.isAfter(endTime2) || endTime1.isEqual(endTime2));
     }
 
-    private <T extends Task> boolean noIntersectionWithTasks(T task) {
+    private <T extends Task> void hasIntersectionWithTasks(T task) {
         List<Task> intersectedTasks = sortedTasks.stream()
                 .filter(currentTask -> !currentTask.equals(task))
                 .filter(currentTask -> intersectionChecked(task, currentTask))
                 .toList();
-        return intersectedTasks.isEmpty();
+        if (!intersectedTasks.isEmpty()) {
+            throw new OverlapsException("Есть пересечение с текущими задачами");
+        }
     }
 }
 
