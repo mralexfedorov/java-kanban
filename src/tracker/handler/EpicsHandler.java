@@ -48,7 +48,7 @@ public class EpicsHandler extends BaseHttpHandler {
             case "POST" -> {
                 if (partsOfPath.length == 2) {
                     InputStream inputStream = httpExchange.getRequestBody();
-                    String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
+                    String body = new String(inputStream.readAllBytes(), charset);
                     if (body.isEmpty()) {
                         BaseHttpHandler.sendServerError(httpExchange);
                     } else {

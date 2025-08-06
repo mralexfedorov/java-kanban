@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 public abstract class BaseHttpHandler implements HttpHandler {
     protected final Gson gson;
     protected final TaskManager taskManager;
-    protected final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+    protected final Charset charset = StandardCharsets.UTF_8;
 
     public BaseHttpHandler(Gson gson, TaskManager taskManager) {
         this.gson = gson;
