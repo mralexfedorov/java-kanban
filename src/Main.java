@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         final long MINUTES_IN_DAY = 60 * 24;
         final LocalDateTime TASK_START_TIME = LocalDateTime.now();
         System.out.println("Поехали!");

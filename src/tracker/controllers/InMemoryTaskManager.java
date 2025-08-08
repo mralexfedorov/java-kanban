@@ -1,5 +1,6 @@
 package tracker.controllers;
 
+import tracker.exceptions.OverlapsException;
 import tracker.model.Epic;
 import tracker.model.Status;
 import tracker.model.Subtask;
@@ -134,26 +135,20 @@ public class InMemoryTaskManager implements TaskManager {
     // Создание. Сам объект должен передаваться в качестве параметра.
     @Override
     public void createTask(Task task) {
-        if (noIntersectionWithTasks(task)) {
-            tasks.put(taskId, task);
-            sortedTasks.add(task);
-            taskId++;
-        } else {
-            System.out.println("Пересечение с текущими задачами");
-        }
+        hasIntersectionWithTasks(task);
+        tasks.put(taskId, task);
+        sortedTasks.add(task);
+        taskId++;
     }
 
     @Override
     public void createSubtask(Subtask task) {
-        if (noIntersectionWithTasks(task)) {
-            subtasks.put(taskId, task);
-            sortedTasks.add(task);
-            updateEpicStatus(task.getEpic());
-            updateEpicEndTimeAndDuration(task.getEpic());
-            taskId++;
-        } else {
-            System.out.println("Пересечение с текущими задачами.");
-        }
+        hasIntersectionWithTasks(task);
+        subtasks.put(taskId, task);
+        sortedTasks.add(task);
+        updateEpicStatus(task.getEpic());
+        updateEpicEndTimeAndDuration(task.getEpic());
+        taskId++;
     }
 
     @Override
@@ -169,13 +164,10 @@ public class InMemoryTaskManager implements TaskManager {
         if (updatedTask == null) {
             System.out.println("Задача с id = " + task.getId() + " не найдена");
         }
-        if (noIntersectionWithTasks(task)) {
-            sortedTasks.remove(updatedTask);
-            tasks.put(task.getId(), task);
-            sortedTasks.add(task);
-        } else {
-            System.out.println("Пересечение с текущими задачами");
-        }
+        hasIntersectionWithTasks(task);
+        sortedTasks.remove(updatedTask);
+        tasks.put(task.getId(), task);
+        sortedTasks.add(task);
     }
 
     @Override
@@ -184,15 +176,12 @@ public class InMemoryTaskManager implements TaskManager {
         if (updatedTask == null) {
             System.out.println("Задача с id = " + task.getId() + " не найдена");
         }
-        if (noIntersectionWithTasks(task)) {
-            sortedTasks.remove(updatedTask);
-            subtasks.put(task.getId(), task);
-            sortedTasks.add(task);
-            updateEpicStatus(task.getEpic());
-            updateEpicEndTimeAndDuration(task.getEpic());
-        } else {
-            System.out.println("Пересечение с текущими задачами");
-        }
+        hasIntersectionWithTasks(task);
+        sortedTasks.remove(updatedTask);
+        subtasks.put(task.getId(), task);
+        sortedTasks.add(task);
+        updateEpicStatus(task.getEpic());
+        updateEpicEndTimeAndDuration(task.getEpic());
     }
 
     @Override
@@ -303,12 +292,14 @@ public class InMemoryTaskManager implements TaskManager {
                 && (endTime1.isAfter(endTime2) || endTime1.isEqual(endTime2));
     }
 
-    private <T extends Task> boolean noIntersectionWithTasks(T task) {
+    private <T extends Task> void hasIntersectionWithTasks(T task) {
         List<Task> intersectedTasks = sortedTasks.stream()
                 .filter(currentTask -> !currentTask.equals(task))
                 .filter(currentTask -> intersectionChecked(task, currentTask))
                 .toList();
-        return intersectedTasks.isEmpty();
+        if (!intersectedTasks.isEmpty()) {
+            throw new OverlapsException("Есть пересечение с текущими задачами");
+        }
     }
 }
 

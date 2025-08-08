@@ -31,7 +31,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     @Override
     @Test
-    void checkEpic() {
+    void checkEpic() throws InterruptedException {
         super.checkEpic();
     }
 
@@ -44,7 +44,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void checkImportFromFile() {
+    void checkImportFromFile() throws InterruptedException {
         Task task1 = new Task("task 1", "task 1", 1, Status.NEW, MINUTES_IN_DAY,
                 TASK_START_TIME.minusDays(4));
         Task task2 = new Task("task 2", "task 2", 2, Status.NEW, MINUTES_IN_DAY,
